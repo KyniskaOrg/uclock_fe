@@ -32,9 +32,8 @@ const AppHeaderDropdown = () => {
         <CAvatar src={avatar8} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CContainer className="col-md px-4" lg >
-          <CAvatar src={avatar8} size="md" />
-          User Name
+        <CContainer className="col-md p-4 row justify-content-center" style={{ marginLeft: 0 }}>
+          <div>User Name</div>
         </CContainer>
         <CDropdownDivider />
         <CDropdownItem href="#">
