@@ -1,8 +1,7 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { useSelector } from 'react-redux'
 
-import { CSpinner, useColorModes } from '@coreui/react'
+import { CSpinner } from '@coreui/react'
 import './scss/style.scss'
 
 // We use those styles to show code examples, you should remove them in your application.
@@ -18,23 +17,6 @@ const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 
 const App = () => {
-  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const storedTheme = useSelector((state) => state.theme)
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
-    if (theme) {
-      setColorMode(theme)
-    }
-
-    if (isColorModeSet()) {
-      return
-    }
-
-    setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <BrowserRouter>
       <Suspense
@@ -50,10 +32,46 @@ const App = () => {
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
           <Route path="*" name="Home" element={<DefaultLayout />} />
-          <Route exact path="/timesheet" name="Timesheet" element={<DefaultLayout />} />
-          <Route exact path="/reports" name="Reports" element={<DefaultLayout />} />
-          <Route exact path="/projects" name="Projects" element={<DefaultLayout />} />
-          <Route exact path="/teams" name="Teams" element={<DefaultLayout />} />
+          <Route
+            exact
+            path="/timesheet"
+            name="Timesheet"
+            element={
+              <DefaultLayout>
+                <div>time</div>
+              </DefaultLayout>
+            }
+          />
+          <Route
+            exact
+            path="/reports"
+            name="Reports"
+            element={
+              <DefaultLayout>
+                <div>rep</div>
+              </DefaultLayout>
+            }
+          />
+          <Route
+            exact
+            path="/projects"
+            name="Projects"
+            element={
+              <DefaultLayout>
+                <div>proj</div>
+              </DefaultLayout>
+            }
+          />
+          <Route
+            exact
+            path="/teams"
+            name="Teams"
+            element={
+              <DefaultLayout>
+                <div>teams</div>
+              </DefaultLayout>
+            }
+          />
         </Routes>
       </Suspense>
     </BrowserRouter>
