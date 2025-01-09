@@ -1,16 +1,30 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import authReducer from './reducers/authReducer';  // Your new slice reducer
-import uiReducer from './reducers/uiReducer';  // Import the legacy reducer
+import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // LocalStorage
+import authReducer from './reducers/authReducer';  
+import uiReducer from './reducers/uiReducer';  
 
-// Combine both reducers
+// Define persist config
+const persistConfig = {
+  key: 'root',
+  storage, // Use localStorage to persist the store
+  whitelist: ['auth'], // Only persist the 'auth' slice
+};
+
+// Combine reducers
 const rootReducer = combineReducers({
-  auth: authReducer, // New slice reducer
-  ui: uiReducer,    // Legacy reducer (e.g., sidebar and theme state)
+  auth: authReducer,
+  ui: uiReducer,
 });
 
+// Create persist reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// Configure store with persisted reducer
 const store = configureStore({
-  reducer: rootReducer,  // Use the combined reducer here
+  reducer: persistedReducer,
 });
 
+export const persistor = persistStore(store); // Create persistor
 export default store;
