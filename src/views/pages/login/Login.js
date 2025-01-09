@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   CButton,
   CCard,
@@ -13,21 +13,50 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-} from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilLockLocked, cilUser } from '@coreui/icons';
-import { login } from '../../../redux/reducers/authReducer'; // Import login thunk
+} from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilLockLocked, cilUser } from '@coreui/icons'
+import { login } from '../../../redux/reducers/authReducer' // Import login thunk
 
 const Login = () => {
-  const dispatch = useDispatch();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { loading, error } = useSelector((state) => state.auth);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [validationError, setValidationError] = useState('')
+
+  const { token, loading, error } = useSelector((state) => state.auth) // Get token from Redux state
+
+  useEffect(() => {
+    if (token) {
+      // Redirect immediately if token exists
+      navigate('/', { replace: true })
+    }
+  }, [token, navigate])
 
   const handleLogin = (e) => {
-    e.preventDefault();
-    dispatch(login({ email, password })); // Dispatch login thunk
-  };
+    e.preventDefault()
+
+    // Validation
+    if (!email || !password) {
+      setValidationError('Email and Password are required.')
+      return
+    }
+
+    // Clear validation error and dispatch login
+    setValidationError('')
+    dispatch(login({ email, password })).then((action) => {
+      if (action.type === 'auth/login/fulfilled') {
+        // Redirect to timesheet after successful login
+        navigate('/timesheet')
+      }
+    })
+  }
+
+  if (token) {
+    return null // If token is available, we return null to prevent login page rendering
+  }
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -41,6 +70,14 @@ const Login = () => {
                     <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
 
+                    {/* Show validation errors */}
+                    {validationError && (
+                      <div className="alert alert-danger" role="alert">
+                        {validationError}
+                      </div>
+                    )}
+
+                    {/* Show server-side errors */}
                     {error && (
                       <div className="alert alert-danger" role="alert">
                         {error}
@@ -108,7 +145,7 @@ const Login = () => {
         </CRow>
       </CContainer>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

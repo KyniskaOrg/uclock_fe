@@ -1,4 +1,6 @@
 import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../../redux/reducers/authReducer' // Import logout action
 import {
   CAvatar,
   CBadge,
@@ -23,8 +25,14 @@ import {
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-
 const AppHeaderDropdown = () => {
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.auth.user) // Get user from Redux state
+
+  const handleLogout = () => {
+    dispatch(logout()) // Dispatch logout action
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -33,7 +41,8 @@ const AppHeaderDropdown = () => {
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CContainer className="col-md p-4 row justify-content-center" style={{ marginLeft: 0 }}>
-          <div>User Name</div>
+          {/* Display user's name */}
+          <div>{user ? user.username : 'User Name'}</div>
         </CContainer>
         <CDropdownDivider />
         <CDropdownItem href="#">
@@ -45,7 +54,7 @@ const AppHeaderDropdown = () => {
           Settings
         </CDropdownItem>
         <CDropdownDivider />
-        <CDropdownItem href="#">
+        <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Log Out
         </CDropdownItem>
