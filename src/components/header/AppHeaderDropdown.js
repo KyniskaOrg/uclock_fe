@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/reducers/authReducer' // Import logout action
 import {
   CAvatar,
-  CBadge,
   CDropdown,
   CDropdownDivider,
   CDropdownHeader,
@@ -12,25 +11,18 @@ import {
   CDropdownToggle,
   CContainer,
 } from '@coreui/react'
-import {
-  cilBell,
-  cilCreditCard,
-  cilCommentSquare,
-  cilEnvelopeOpen,
-  cilFile,
-  cilLockLocked,
-  cilSettings,
-  cilTask,
-  cilUser,
-} from '@coreui/icons'
+import { cilLockLocked, cilSettings, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import { useToast } from '../../components/toaster'
 
 const AppHeaderDropdown = () => {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.auth.user) // Get user from Redux state
+  const { showToast } = useToast()
 
   const handleLogout = () => {
-    dispatch(logout()) // Dispatch logout action
+    dispatch(logout())
+    showToast('Logout Successful', { color: 'success' })
   }
 
   return (

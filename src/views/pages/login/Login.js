@@ -17,8 +17,11 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { login } from '../../../redux/reducers/authReducer' // Import login thunk
+import { useToast } from '../../../components/toaster'
 
 const Login = () => {
+  const { showToast } = useToast()
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -48,8 +51,11 @@ const Login = () => {
     setValidationError('')
     dispatch(login({ email, password })).then((action) => {
       if (action.type === 'auth/login/fulfilled') {
+        showToast('login Successful', { color: 'success' })
         // Redirect to timesheet after successful login
         navigate('/timesheet')
+      } else {
+        showToast('error', { color: 'danger' })
       }
     })
   }
@@ -77,12 +83,12 @@ const Login = () => {
                       </div>
                     )}
 
-                    {/* Show server-side errors */}
+                    {/* Show server-side errors
                     {error && (
                       <div className="alert alert-danger" role="alert">
                         Validation Error
                       </div>
-                    )}
+                    )} */}
 
                     <CInputGroup className="mb-3">
                       <CInputGroupText>

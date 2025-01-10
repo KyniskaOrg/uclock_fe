@@ -61,7 +61,7 @@ const Register = () => {
         navigate('/login')
       }
     } catch (err) {
-      setError(err || 'An error occurred')
+      setError("validation error" || 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -80,7 +80,7 @@ const Register = () => {
 
                   {error && (
                       <div className="alert alert-danger" role="alert">
-                        {error.message}
+                        {error}
                       </div>
                     )}
                   <CInputGroup className="mb-3">
