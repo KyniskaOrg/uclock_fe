@@ -26,7 +26,7 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [validationError, setValidationError] = useState('')
 
-  const { token, loading, error } = useSelector((state) => state.auth) // Get token from Redux state
+  const { token, loading } = useSelector((state) => state.auth) // Get token from Redux state
 
   useEffect(() => {
     if (token) {
@@ -80,7 +80,7 @@ const Login = () => {
                     {/* Show server-side errors */}
                     {error && (
                       <div className="alert alert-danger" role="alert">
-                        {error}
+                        Validation Error
                       </div>
                     )}
 
@@ -91,6 +91,7 @@ const Login = () => {
                       <CFormInput
                         placeholder="Email"
                         autoComplete="email"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       />
@@ -104,6 +105,7 @@ const Login = () => {
                         type="password"
                         placeholder="Password"
                         autoComplete="current-password"
+                        minLength={8}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />

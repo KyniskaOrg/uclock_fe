@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {useSelector } from 'react-redux'
 import {
   CButton,
   CCard,
@@ -11,51 +12,60 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-} from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilLockLocked, cilUser } from '@coreui/icons';
-import { registerUser } from '../../../utils/apis/apis'; // Import registerUser function
+} from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilLockLocked, cilUser } from '@coreui/icons'
+import { registerUser } from '../../../utils/apis/apis' // Import registerUser function
+//import CustomToast from '../../../components/toaster'
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [repeatPassword, setRepeatPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { token } = useSelector((state) => state.auth) // Get token from Redux state
+
+  useEffect(() => {
+    if (token) {
+      // Redirect immediately if token exists
+      navigate('/', { replace: true })
+    }
+  }, [token, navigate])
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (password !== repeatPassword) {
-      setError("Passwords don't match");
-      return;
+      setError("Passwords don't match")
+      return
     }
 
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
 
     try {
       const userData = {
         username,
         email,
         password,
-      };
+      }
 
       // Make API call to register user
-      const response = await registerUser(userData);
+      const response = await registerUser(userData)
 
       if (response) {
         // Redirect to login page after successful registration
-        navigate('/login');
+        navigate('/login')
       }
     } catch (err) {
-      setError(err || 'An error occurred');
+      setError(err || 'An error occurred')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -68,9 +78,11 @@ const Register = () => {
                   <h1>Register</h1>
                   <p className="text-body-secondary">Create your account</p>
 
-                  {/* Show error if any */}
-                  {error && <div className="alert alert-danger">{error}</div>}
-
+                  {error && (
+                      <div className="alert alert-danger" role="alert">
+                        {error.message}
+                      </div>
+                    )}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
@@ -80,6 +92,7 @@ const Register = () => {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       autoComplete="username"
+                      minLength={3}
                       required
                     />
                   </CInputGroup>
@@ -88,6 +101,7 @@ const Register = () => {
                     <CInputGroupText>@</CInputGroupText>
                     <CFormInput
                       placeholder="Email"
+                      type='email'
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
@@ -137,7 +151,7 @@ const Register = () => {
         </CRow>
       </CContainer>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register
