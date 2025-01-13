@@ -6,3 +6,8 @@
 // .sidebar-nav .nav-link.active {
 //     background: #ff6347 !important; /* Force override with your color */
 //   }
+
+.flex-row-end{
+  display: flex;
+  flex-direction: row-reverse;
+}

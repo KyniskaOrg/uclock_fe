@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppSidebar, AppFooter, AppHeader } from '../components/index'
+import { AppSidebar, AppHeader } from '../components/index'
 import { useSelector } from 'react-redux'
+import { CContainer } from '@coreui/react'
 
 const DefaultLayout = ({ children }) => {
   const navigate = useNavigate()
@@ -19,9 +20,12 @@ const DefaultLayout = ({ children }) => {
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader />
         <div className="body flex-grow-1">
-          <div className="body flex-grow-1">{children}</div>
+          <div className="body flex-grow-1">
+            <CContainer className="px-4" lg>
+              {children}
+            </CContainer>
+          </div>
         </div>
-        <AppFooter />
       </div>
     </div>
   ) : null
