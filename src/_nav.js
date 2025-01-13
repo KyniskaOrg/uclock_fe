@@ -28,6 +28,12 @@ const _nav = [
     to: '/teams',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
   },
+  {
+    component: CNavItem,
+    name: 'Clients',
+    to: '/Clients',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+  },
 ]
 
 export default _nav

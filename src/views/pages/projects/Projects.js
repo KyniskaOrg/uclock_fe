@@ -11,24 +11,44 @@ import {
   CModalTitle,
   CFormSelect,
   CFormInput,
+  CForm,
 } from '@coreui/react'
 import { createProject, getAllProjects } from '../../../apis/projectApis'
+import { getAllClients } from '../../../apis/clientApis'
 import { useToast } from '../../../components/toaster'
 
 const NewProjectModal = ({ visible, setVisible, fetchProjects }) => {
   const { showToast } = useToast()
   const [projectName, setProjectName] = useState('')
   const [clientId, setClientId] = useState('')
+  const [clients, setClients] = useState([])
 
-  const handleCreateProject = async () => {
+  // Fetch clients from API
+  useEffect(() => {
+    if (visible) {
+      const fetchClients = async () => {
+        try {
+          const response = await getAllClients() // Call your API to fetch clients
+          setClients(response.clients) // Adjust according to your API's response format
+        } catch (error) {
+          showToast('Failed to fetch clients', { color: 'danger' })
+        }
+      }
+      fetchClients()
+    }
+  }, [visible]) // Trigger when the modal becomes visible
+
+  const handleCreateProject = async (event) => {
+    event.preventDefault()
     try {
       const payload = {
         projectName,
         clientId: clientId || null, // Send null if no client selected
       }
 
-      await createProject(payload) // Call API
-      showToast('Project created successfully', { color: 'success' })
+      await createProject(payload).then((response) => {
+        showToast('Project created successfully', { color: 'success' })
+      })
       setVisible(false)
       setClientId('')
       setProjectName('')
@@ -40,41 +60,47 @@ const NewProjectModal = ({ visible, setVisible, fetchProjects }) => {
 
   return (
     <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
-      <CModalHeader>
-        <CModalTitle>Create New Project</CModalTitle>
-      </CModalHeader>
-      <CModalBody>
-        <CRow>
-          <CCol>
-            <CFormInput
-              id="projectName"
-              placeholder="Project Name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-            />
-          </CCol>
-          <CCol>
-            <CFormSelect
-              aria-label="Select Client"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-            >
-              <option value="">Select Client</option>
-              <option value="1">Client One</option>
-              <option value="2">Client Two</option>
-              <option value="3">Client Three</option>
-            </CFormSelect>
-          </CCol>
-        </CRow>
-      </CModalBody>
-      <CModalFooter>
-        <CButton color="secondary" onClick={() => setVisible(false)}>
-          Close
-        </CButton>
-        <CButton color="primary" onClick={handleCreateProject}>
-          Create Project
-        </CButton>
-      </CModalFooter>
+      <CForm onSubmit={handleCreateProject}>
+        <CModalHeader>
+          <CModalTitle>Create New Project</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CRow>
+            <CCol>
+              <CFormInput
+                id="projectName"
+                placeholder="Project Name"
+                minLength={3}
+                required
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+              />
+            </CCol>
+            <CCol>
+              <CFormSelect
+                aria-label="Select Client"
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+              >
+                <option value="">Select Client</option>
+                {clients.map((client) => (
+                  <option key={client.client_id} value={client.client_id}>
+                    {client.name}
+                  </option>
+                ))}
+              </CFormSelect>
+            </CCol>
+          </CRow>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Close
+          </CButton>
+          <CButton color="primary" type="submit">
+            Create Project
+          </CButton>
+        </CModalFooter>
+      </CForm>
     </CModal>
   )
 }
@@ -86,8 +112,8 @@ const Projects = () => {
   const [totalCount, setTotalCount] = useState(0) // To track if data is being fetched
   const [filter, setFilter] = useState({
     searchText: '', // Filter by project name
-    sortBy: 'name', // Sort by name (default)
-    sortOrder: 'ASC', // Sort order (ASC or DESC)
+    sortBy: null, // Sort by name (default)
+    sortOrder: null, // Sort order (ASC or DESC)
     page: 1, // Current page for pagination
     limit: 10, // Current limit for pagination
   })
@@ -109,7 +135,7 @@ const Projects = () => {
     setFilter: setFilter,
     filter: filter,
     searchableTable: true,
-    totalLength:totalCount,
+    totalLength: totalCount,
     data: data,
   }
   const fetchProjects = async () => {
@@ -120,7 +146,7 @@ const Projects = () => {
       response.projects.forEach((element) => {
         data.push({
           name: element.name, // Corresponds to col1
-          client_name: element.Client ? element.Client : 'null', // Corresponds to col2
+          client_name: element.Client ? element.Client.name : 'null', // Corresponds to col2
         })
       })
       setTotalCount(response.totalProjects)

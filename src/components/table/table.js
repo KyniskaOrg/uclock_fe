@@ -133,9 +133,8 @@ const CustomTable = ({ loading, structuredData }) => {
           </div>
         )}
       </CCardBody>
-      <div className="p-2">
         <CRow className="align-items-center mb-3 px-3">
-          <CCol xs={5} xl={2}>
+          <CCol  style={{paddingTop:15,display:"flex", justifyContent:'flex-start'}}>
             <CPagination aria-label="Page navigation example" className="justify-content-center">
               <CPaginationItem
                 disabled={filter.page === 1}
@@ -173,7 +172,6 @@ const CustomTable = ({ loading, structuredData }) => {
             </CDropdown>
           </CCol>
         </CRow>
-      </div>
     </CCard>
   )
 }
