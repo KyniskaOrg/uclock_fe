@@ -1,21 +1,20 @@
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:3000/api/project'
+const BASE_URL = 'http://localhost:3000/api/employee'
 
 /**
- * Create a new project
+ * Create a new employee
  * @param {Object} payload - The project data
- * @param {string} payload.projectName - The name of the project
- * @param {string|null} [payload.clientId] - The ID of the client (optional)
+ * @param {string} payload.employeeName - The name of the project
  * @returns {Promise} - Axios response promise
  */
-const createProject = async (payload) => {
+const createEmployee = async (payload) => {
   try {
-    const response = await axios.post(`${BASE_URL}/createProject`, payload)
+    const response = await axios.post(`${BASE_URL}/createEmployee`, payload)
     return response.data // Return the data from the response
   } catch (error) {
-    console.error('Error creating project:', error.response?.data || error.message)
-    throw error
+    console.error('Error creating employee:', error.response?.data || error.message)
+    throw error;
   }
 }
 
@@ -28,18 +27,18 @@ const createProject = async (payload) => {
  * @param {string} [payload.projectName=''] - The project name filter (optional, empty string for no filter)
  * @returns {Promise} - Axios response promise with project data
  */
-const getAllProjects = async (query) => {
+const getAllEmployees = async (query) => {
   try {
-    const response = await axios.get(`${BASE_URL}/getAllProjects`, {
+    const response = await axios.get(`${BASE_URL}/getAllEmployees`, {
       params: {
         ...query,
       },
     })
     return response.data // Return the data from the response
   } catch (error) {
-    console.error('Error fetching projects:', error.response?.data || error.message)
+    console.error('Error fetching employees:', error.response?.data || error.message)
     throw error
   }
 }
 
-export { createProject, getAllProjects }
+export { createEmployee, getAllEmployees }

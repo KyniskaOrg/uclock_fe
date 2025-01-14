@@ -12,45 +12,45 @@ import {
   CFormInput,
   CForm,
 } from '@coreui/react'
-import { createClient, getAllClients } from '../../../apis/clientApis'
+import { createEmployee, getAllEmployees } from '../../../apis/employeeApis'
 import { useToast } from '../../../components/toaster'
 
-const NewClientModal = ({ visible, setVisible, fetchClients }) => {
+const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   const { showToast } = useToast()
-  const [clientName, setClientName] = useState('')
+  const [employeeName, setEmployeeName] = useState('')
 
-  const handleCreateClient = async (event) => {
+  const handleCreateEmployee = async (event) => {
     event.preventDefault()
     try {
       const payload = {
-        clientName,
+        name: employeeName,
       }
-      await createClient(payload)
-      showToast('Client added successfully', { color: 'success' })
+      await createEmployee(payload)
+      showToast('Employee added successfully', { color: 'success' })
       setVisible(false)
-      setClientName('')
-      fetchClients()
+      setEmployeeName('')
+      fetchEmployees()
     } catch (error) {
-      showToast('Failed to add client', { color: 'danger' })
+      showToast('Failed to add employee', { color: 'danger' })
     }
   }
 
   return (
     <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
-      <CForm onSubmit={handleCreateClient}>
+      <CForm onSubmit={handleCreateEmployee}>
         <CModalHeader>
-          <CModalTitle>Add New client</CModalTitle>
+          <CModalTitle>Add New Employee</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CRow>
             <CCol>
               <CFormInput
                 id="clientName"
-                placeholder="Client Name"
-                value={clientName}
+                placeholder="Employee Name"
+                value={employeeName}
                 minLength={3}
                 required
-                onChange={(e) => setClientName(e.target.value)}
+                onChange={(e) => setEmployeeName(e.target.value)}
               />
             </CCol>
           </CRow>
@@ -60,7 +60,7 @@ const NewClientModal = ({ visible, setVisible, fetchClients }) => {
             Close
           </CButton>
           <CButton color="primary" type="submit">
-            Create Client
+            Create Employee
           </CButton>
         </CModalFooter>
       </CForm>
@@ -68,7 +68,7 @@ const NewClientModal = ({ visible, setVisible, fetchClients }) => {
   )
 }
 
-const Clients = () => {
+const Employee = () => {
   const [visible, setVisible] = useState(false) // For modal visibility
   const [data, setData] = useState([]) // Storing the structured data for columns
   const [loading, setLoading] = useState(false) // To track if data is being fetched
@@ -81,17 +81,22 @@ const Clients = () => {
     limit: 10, // Current limit for pagination
   })
 
-  // Function to fetch all Clients with applied filters
+  // Function to fetch all Employees with applied filters
   const structuredData = {
     columns: {
       col1: {
-        name: 'Client Name', // Column name
+        name: 'Employee ID', // Column name
+        sortBy: 'employee_id', // Default sort by client name
+        allowsorting: false,
+      },
+      col2: {
+        name: 'Employee Name', // Column name
         sortBy: 'name', // Default sort by name
         allowsorting: true, // Sorting allowed
       },
-      col2: {
-        name: 'Client id', // Column name
-        sortBy: 'client_id', // Default sort by client name
+      col3: {
+        name: 'Employee Email', // Column name
+        sortBy: 'email', // Default sort by client name
         allowsorting: false,
       },
     },
@@ -101,22 +106,23 @@ const Clients = () => {
     totalLength: totalCount,
     data: data,
   }
-  const fetchClients = async () => {
+  const fetchEmployees = async () => {
     setLoading(true)
     try {
-      const response = await getAllClients(filter)
+      const response = await getAllEmployees(filter)
       let data = []
-      response.clients.forEach((element) => {
+      response.employees.forEach((element) => {
         data.push({
           name: element.name, // Corresponds to col1
-          client_id: element.client_id, // Corresponds to col2
+          employee_id: element.employee_id, // Corresponds to col2
+          email: element.email, // Corresponds to col3
         })
       })
-      setTotalCount(response.totalClients)
+      setTotalCount(response.totalEmployees)
       // Add more columns as needed
       setData(data)
     } catch (error) {
-      console.error('Error fetching Clients:', error)
+      console.error('Error fetching Employees:', error)
     } finally {
       setLoading(false)
     }
@@ -124,19 +130,19 @@ const Clients = () => {
 
   // Trigger the initial fetch when the component mounts or when the filter changes
   useEffect(() => {
-    fetchClients()
+    fetchEmployees()
   }, [filter]) // Re-fetch when the filter changes
 
   return (
     <>
       <CRow className="align-items-center mb-3">
         <CCol xs={5} xl={2}>
-          <h3>Clients</h3>
+          <h3>Teams</h3>
         </CCol>
         <CCol className="flex-row-end">
-          <NewClientModal visible={visible} setVisible={setVisible} fetchClients={fetchClients} />
+          <NewEmployeeModal visible={visible} setVisible={setVisible} fetchEmployees={fetchEmployees} />
           <CButton color={'primary'} onClick={() => setVisible(true)}>
-            Add new client
+            Add new Employee
           </CButton>
         </CCol>
       </CRow>
@@ -145,4 +151,4 @@ const Clients = () => {
   )
 }
 
-export default Clients
+export default Employee

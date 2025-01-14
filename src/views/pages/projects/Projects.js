@@ -46,9 +46,8 @@ const NewProjectModal = ({ visible, setVisible, fetchProjects }) => {
         clientId: clientId || null, // Send null if no client selected
       }
 
-      await createProject(payload).then((response) => {
-        showToast('Project created successfully', { color: 'success' })
-      })
+      await createProject(payload)
+      showToast('Project created successfully', { color: 'success' })
       setVisible(false)
       setClientId('')
       setProjectName('')

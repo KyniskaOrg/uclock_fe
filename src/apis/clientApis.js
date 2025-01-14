@@ -14,6 +14,7 @@ const createClient = async (payload) => {
     return response.data; // Return the data from the response
   } catch (error) {
     console.error('Error creating client:', error.response?.data || error.message);
+    throw error
   }
 };
 
@@ -37,6 +38,7 @@ const getAllClients = async (query) => {
     return response.data; // Return the data from the response
   } catch (error) {
     console.error('Error fetching clients:', error.response?.data || error.message);
+    throw error
   }
 };
 

@@ -17,7 +17,7 @@ const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const Projects = React.lazy(() => import('./views/pages/projects/Projects'))
 const Clients = React.lazy(() => import('./views/pages/clients/Clients'))
-
+const Employee = React.lazy(() => import('./views/pages/employee/Employee'))
 
 const App = () => {
   return (
@@ -71,7 +71,7 @@ const App = () => {
             name="Teams"
             element={
               <DefaultLayout>
-                <div>teams</div>
+                <Employee />
               </DefaultLayout>
             }
           />
@@ -81,7 +81,7 @@ const App = () => {
             name="Clients"
             element={
               <DefaultLayout>
-               <Clients />
+                <Clients />
               </DefaultLayout>
             }
           />
