@@ -18,6 +18,8 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const Projects = React.lazy(() => import('./views/pages/projects/Projects'))
 const Clients = React.lazy(() => import('./views/pages/clients/Clients'))
 const Employee = React.lazy(() => import('./views/pages/employee/Employee'))
+const Timesheet = React.lazy(() => import('./views/pages/timesheets/Timesheets'))
+
 
 const App = () => {
   return (
@@ -41,7 +43,7 @@ const App = () => {
             name="Timesheet"
             element={
               <DefaultLayout>
-                <div>time</div>
+               <Timesheet/>
               </DefaultLayout>
             }
           />

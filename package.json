@@ -35,14 +35,17 @@
     "chart.js": "^4.4.6",
     "classnames": "^2.5.1",
     "core-js": "^3.39.0",
+    "date-fns": "^4.1.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.28.0",
+    "react-select-async-paginate": "^0.7.9",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
-    "simplebar-react": "^3.2.6"
+    "simplebar-react": "^3.2.6",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.3",
