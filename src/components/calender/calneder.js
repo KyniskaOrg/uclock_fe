@@ -5,7 +5,7 @@ import { addMonths, endOfWeek, startOfWeek, subMonths, getDaysInMonth } from 'da
 import { cilArrowLeft, cilArrowRight, cilCalendar } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-const Calender = ({ onChange }) => {
+const Calender = ({ setDateRange }) => {
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(new Date())
   const [week, setWeek] = useState({
@@ -14,7 +14,7 @@ const Calender = ({ onChange }) => {
   })
 
   useEffect(() => {
-    onChange && onChange(week)
+    setDateRange && setDateRange(week)
   }, [week])
 
   const isLeapYear = () => {
@@ -168,19 +168,19 @@ const Calender = ({ onChange }) => {
       onClick={() => setOpen(true)}
       tabIndex={0}
     >
-      <CIcon icon={cilCalendar}size="lg" />
-      <p style={{ margin:0}}>
+      <CIcon icon={cilCalendar} size="lg" />
+      <p style={{ margin: 0 }}>
         {convertDate(week.firstDay)} - {convertDate(week.lastDay)}
       </p>
       {open && (
         <div className="week-picker-options">
           <div className="title-week">
             <div onClick={() => handleDate()} className="arrow-container">
-            <CIcon icon={cilArrowLeft} customClassName="nav-icon" />
+              <CIcon icon={cilArrowLeft} customClassName="nav-icon" />
             </div>
             {`${months[date.getMonth()]} ${date.getFullYear()}`}
             <div onClick={() => handleDate(true)} className="arrow-container">
-            <CIcon icon={cilArrowRight} customClassName="nav-icon" />
+              <CIcon icon={cilArrowRight} customClassName="nav-icon" />
             </div>
           </div>
           <div className="numbers-container">

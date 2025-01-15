@@ -15,7 +15,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { registerUser } from '../../../utils/apis/apis' // Import registerUser function
+import { registerUser } from '../../../apis/authApis' // Import registerUser function
 //import CustomToast from '../../../components/toaster'
 
 const Register = () => {

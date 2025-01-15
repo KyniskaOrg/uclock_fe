@@ -1,15 +1,41 @@
 // If you want to override variables do it here
-@import "variables";
+@import 'variables';
 
 // Import styles
-@import "@coreui/coreui/scss/coreui";
-@import "@coreui/chartjs/scss/coreui-chartjs";
+@import '@coreui/coreui/scss/coreui';
+@import '@coreui/chartjs/scss/coreui-chartjs';
 
 // Vendors
-@import "vendors/simplebar";
+@import 'vendors/simplebar';
 
 // Custom styles for this theme
-@import "theme";
+@import 'theme';
 
 // If you want to add custom CSS you can put it here
-@import "custom";
+@import 'custom';
+
+.custom-number-input {
+  width: 100px; /* Adjust width */
+  height: 40px; /* Adjust height */
+  border: 1px solid #ccc; /* Custom border */
+  font-size: 14px; /* Adjust font size */
+  padding: 2px 2px; /* Inner padding */
+  outline: none; /* Remove outline on focus */
+  box-sizing: border-box; /* Ensure padding doesn't affect size */
+}
+
+.custom-number-input:focus {
+  border-color: black; /* Change border color on focus */
+}
+
+/* Remove default arrows for number input in most browsers */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
