@@ -109,6 +109,15 @@ const TimesheetTable = () => {
     totals.saturday +
     totals.sunday
 
+  // Helper function to get the day name and date
+  const getDayLabel = (dayOffset) => {
+    const today = new Date()
+    const day = new Date(today)
+    day.setDate(today.getDate() + dayOffset)
+    const options = { weekday: 'short', day: 'numeric', month: 'short' }
+    return day.toLocaleDateString('en-US', options).replace(',', '')
+  }
+
   return (
     <>
       <CTable hover responsive style={{ border: '1px solid #ccc'}}>
@@ -118,25 +127,25 @@ const TimesheetTable = () => {
               Task
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Monday
+              {getDayLabel(0)} {/* Monday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Tuesday
+              {getDayLabel(1)} {/* Tuesday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Wednesday
+              {getDayLabel(2)} {/* Wednesday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Thursday
+              {getDayLabel(3)} {/* Thursday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Friday
+              {getDayLabel(4)} {/* Friday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Saturday
+              {getDayLabel(5)} {/* Saturday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Sunday
+              {getDayLabel(6)} {/* Sunday */}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
               Total
