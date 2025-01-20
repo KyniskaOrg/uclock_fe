@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useToast } from '../../components/toaster'
 import {
-  CCard,
-  CCardBody,
+  getTimesheetRecord,
+  setTimesheetRecord,
+  deleteTimesheetRecords,
+} from '../../apis/timesheetApis'
+import {
   CTable,
   CTableHead,
   CTableRow,
@@ -10,145 +14,548 @@ import {
   CTableDataCell,
   CTableFoot,
   CButton,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+  CFormInput,
+  CForm,
 } from '@coreui/react'
+import { v4 } from 'uuid'
 import CIcon from '@coreui/icons-react'
 import { cilX } from '@coreui/icons'
+import { AsyncPaginate } from 'react-select-async-paginate'
+import { getAllProjects } from '../../apis/projectApis'
+import { calculateTotaltime, calculateRowTotal } from '../../utils/utils'
 
-const TimesheetTable = () => {
-  const headerStyle = {
-    // border: '1px solid #ccc',
-    padding: '8px',
-    backgroundColor: 'rgba(37, 43, 54, 0.03)',
-    fontWeight: 'bold',
+
+const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(true) // Toggle for showing dropdown
+
+  const loadOptions = async (search, prevOptions) => {
+    if (isLoading) {
+      return {
+        options: prevOptions,
+        hasMore: false,
+      }
+    }
+
+    setIsLoading(true)
+    try {
+      let query = search ? { searchText: search } : { page: currentPage, limit: 50 }
+      const data = await getAllProjects(query)
+
+      const projects = data.projects
+        .map((project) => ({
+          value: project.project_id,
+          label: project.name,
+        }))
+        // Filter out options already selected
+        .filter((sel) => !rowData.some((project) => project.selectedProject === sel.value))
+
+      const hasMore = currentPage < data.totalPages
+      if (hasMore) {
+        setCurrentPage(currentPage + 1)
+      }
+
+      setIsLoading(false)
+      return {
+        options: projects,
+        hasMore,
+      }
+    } catch (error) {
+      setIsLoading(false)
+      console.error('Error loading projects:', error)
+      return {
+        options: [],
+        hasMore: false,
+      }
+    }
   }
+
+  const handleChange = (selectedOption) => {
+    const updatedData = rowData.map((item) =>
+      item.id === rowId ? { ...item, selectedProject: selectedOption.value } : item,
+    )
+   // console.log(updatedData)
+    const hasNullSelectedProject = updatedData.some((item) => item.selectedProject === null)
+   // console.log(hasNullSelectedProject)
+    if (!hasNullSelectedProject) {
+      const newRow = {
+        id: v4(),
+        selectedProject: null,
+        monday: null,
+        tuesday: null,
+        wednesday: null,
+        thursday: null,
+        friday: null,
+        saturday: null,
+        sunday: null,
+      }
+      setRowData([...updatedData, newRow])
+    } else {
+      setRowData(updatedData)
+    }
+    onChange(selectedOption)
+    setShowDropdown(false)
+    setCurrentPage(1)
+  }
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      width: 200,
+      height: 40,
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: 200,
+      overflowY: 'auto',
+      scrollbarWidth: 'thin',
+    }),
+  }
+
+  return (
+    <div>
+      {showDropdown ? (
+        <AsyncPaginate
+          styles={customStyles}
+          options={[]} // Initial empty options list
+          value={value.value ? value : null}
+          loadOptions={loadOptions}
+          onChange={(selectedOption) => handleChange(selectedOption)}
+          isLoading={isLoading}
+          debounceTimeout={500}
+          menuPortalTarget={document.body} // To display over table
+          placeholder="Search..."
+          additional={{
+            page: currentPage,
+          }}
+        />
+      ) : (
+        <div
+          onClick={() => setShowDropdown(true)} // Show dropdown on click
+          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'row', padding: 10 }}
+        >
+          <div style={{ padding: '0 5px 0 5px', color: '#6f42c1' }}>●</div>{' '}
+          {value ? value.label : 'Select a project'}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const TimeInput = ({ value, onChange, disabeled }) => {
+  const [time, setTime] = useState('') // Stores raw user input
+  const [formattedTime, setFormattedTime] = useState('') // Stores formatted time
+  let totalMinutes = 0
+  let hours = 0
+  let minutes = 0
+  let formatted = 0
+
+  useEffect(() => {
+    setTime(value)
+  }, [value])
+
+  // Format the time when focus is lost (onBlur)
+  const handleBlur = () => {
+    if (time === '') {
+      setFormattedTime('')
+      return
+    }
+
+    // Check if input is already formatted like MM:SS
+    if (/^\d+:\d+$/.test(time)) {
+      const match = time.match(/^(\d+):(\d+)$/)
+      if (match) {
+        hours = match[1] // digits before the colon
+        minutes = match[2] // digits after the colon
+        hours = parseInt(hours, 10) // Remaining digits are hours
+        minutes = minutes % 60
+        hours = hours + Math.floor(match[2] / 60) // convert minutes and add
+
+        const formatted = `${hours}:${minutes.toString().padStart(2, '0')}`
+        setFormattedTime(formatted)
+        setTime(formatted) // Reflect formatted time in the input
+        onChange(formatted)
+      } else {
+        setFormattedTime('')
+        setTime('') // No match if the format is not valid
+        onChange('')
+      }
+    } else {
+      // Test for anything other than digits (0-9) and colons (:)
+      if (/[^0-9]/.test(time)) {
+        setFormattedTime('')
+        setTime('')
+        onChange('')
+      }
+      // Remove non-numeric characters for raw numbers
+      const numericInput = time.replace(/\D/g, '')
+
+      if (numericInput.length < 3) {
+        // If less than 3 digits, treat as minutes only
+        totalMinutes = parseInt(numericInput, 10)
+        hours = Math.floor(totalMinutes / 60)
+        minutes = totalMinutes % 60
+        formatted = `${hours}:${minutes.toString().padStart(2, '0')}`
+        setFormattedTime(formatted)
+        setTime(formatted) // Reflect formatted time in the input
+        onChange(formatted)
+      } else {
+        // Convert input into proper MM:SS format
+        hours = parseInt(numericInput.slice(0, -2), 10) // Remaining digits are hours
+        minutes = numericInput.slice(-2) % 60
+        hours = hours + Math.floor(numericInput.slice(-2) / 60) // convert seconds to minutes and add
+
+        const formatted = `${hours}:${minutes.toString().padStart(2, '0')}`
+        setFormattedTime(formatted)
+        setTime(formatted) // Reflect formatted time in the input
+        onChange(formatted)
+      }
+    }
+  }
+
+  return (
+    <input
+      disabled={disabeled}
+      className="custom-number-input"
+      id="timeInput"
+      type="text"
+      value={time}
+      onChange={(e) => setTime(e.target.value)}
+      onBlur={handleBlur} // Call handleBlur when focus is lost
+    />
+  )
+}
+
+const DeleteRowModal = ({ visible, setVisible, confirmDeleteTimesheetRecords }) => {
+  return (
+    <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
+      <CForm
+        onSubmit={(e) => {
+          e.preventDefault()
+          confirmDeleteTimesheetRecords()
+        }}
+      >
+        <CModalHeader>
+          <CModalTitle>Delete Row</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Are you sure you want to delete this row?
+          <br />
+          If you delete, it will also delete all time entries with this project/task for this week.
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Close
+          </CButton>
+          <CButton color="danger" type="submit">
+            Delete
+          </CButton>
+        </CModalFooter>
+      </CForm>
+    </CModal>
+  )
+}
+
+const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRowData }) => {
+  const [project, setProject] = useState({ value: null, label: '' })
 
   const cellStyle = {
-    // border: '1px solid #ccc',
     padding: '8px',
   }
+  const { showToast } = useToast()
+  // Fetch timesheet data for the current row
+  const fetchTimesheetData = async (query) => {
+    try {
+      const data = await getTimesheetRecord(query)
+      const updatedRow = { ...row }
 
-  // Initial dummy data
-  const [data, setData] = useState([
+      // Get the starting date (Monday) of the week from the `dateRange`
+      const startDate = new Date(dateRange.firstDay)
+
+      // Define days of the week
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+      // Populate the row data for each day
+      days.forEach((day, index) => {
+        // Calculate the date for the current day
+        const currentDate = new Date(startDate)
+        currentDate.setDate(startDate.getDate() + index)
+
+        // Find matching timesheet data for the current date
+        const dayData = data.find(
+          (entry) =>
+            new Date(entry.date).toISOString().split('T')[0] ===
+            currentDate.toISOString().split('T')[0],
+        )
+
+        // Assign fetched data or null if no data is found for the day
+        updatedRow[day] = dayData || {
+          date: currentDate.toISOString().split('T')[0],
+          hours_worked: '',
+        }
+      })
+
+      // Update the row data in the parent state
+      setRowData((prev) => prev.map((r) => (r.id === row.id ? updatedRow : r)))
+    } catch (error) {
+      console.error('Error fetching timesheet data:', error)
+    }
+  }
+
+  const setTimesheetData = async (value, day, date) => {
+    try {
+      const body = {
+        employee_id: employeeId,
+        project_id: project.value,
+        date,
+        hours_worked: value,
+      }
+      await setTimesheetRecord(body)
+      //console.log('Updating timesheet:', body)
+      showToast('successfully updated hour worked ', { color: 'success' })
+      setRowData((prev) =>
+        prev.map((r) => {
+          if (r.id === row.id) {
+            return { ...r, [day]: { ...r[day], hours_worked: value, date } }
+          }
+          return r
+        }),
+      )
+    } catch (error) {
+      showToast('Error updating timesheet data ', { color: 'danger' })
+      console.error('Error updating timesheet data:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (dateRange.firstDay && employeeId && project.value) {
+      const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
+      fetchTimesheetData({
+        employee_id: employeeId,
+        project_id: project.value,
+        start_date: startDate,
+      })
+    }
+  }, [employeeId, dateRange, project.value])
+
+  const rowTotal = calculateRowTotal(row)
+
+  return (
+    <CTableRow key={row.id}>
+      <CTableDataCell style={cellStyle}>
+        <ProjectDropdown
+          value={project}
+          onChange={setProject}
+          rowId={row.id}
+          rowData={rowData}
+          setRowData={setRowData}
+        />
+      </CTableDataCell>
+      {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(
+        (day, index) => {
+          const currentDate = new Date(dateRange.firstDay)
+          currentDate.setDate(new Date(dateRange.firstDay).getDate() + index)
+          const dateStr = currentDate.toISOString().split('T')[0]
+
+          return (
+            <CTableDataCell style={cellStyle} key={day}>
+              <TimeInput
+                disabeled={!(employeeId && project.value)} // disabeled if project and employee is not selected
+                day={day} // Pass the day name
+                date={dateStr} // Pass the computed date
+                value={row[day]?.hours_worked || ''}
+                onChange={(value) => setTimesheetData(value, day, dateStr)}
+              />
+            </CTableDataCell>
+          )
+        },
+      )}
+      <CTableDataCell style={{ ...cellStyle, padding: 15 }}>{rowTotal}</CTableDataCell>
+      <CTableDataCell style={{ ...cellStyle, padding: 15 }}>
+        <CIcon
+          customClassName="nav-icon"
+          icon={cilX}
+          style={{
+            width: '15px',
+            height: '20px',
+            cursor: 'pointer',
+            color: '#999',
+          }}
+          onClick={() => handleDelete(row)}
+        />
+      </CTableDataCell>
+    </CTableRow>
+  )
+}
+
+const TimesheetTable = ({ employeeId, dateRange }) => {
+  const { firstDay } = dateRange
+  const headerStyle = {
+    padding: '8px',
+    backgroundColor: 'rgba(37, 43, 54, 0.03)',
+    fontWeight: 'normal',
+    color: '#999',
+    fontSize: '15px',
+  }
+  const { showToast } = useToast()
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteRow, setDeleteRow] = useState(null)
+
+  // Initial dummy data with new structure
+  const [rowData, setRowData] = useState([
     {
       id: 1,
-      task: 'Project A',
-      monday: 2,
-      tuesday: 3,
-      wednesday: 4,
-      thursday: 5,
-      friday: 6,
-      saturday: 0,
-      sunday: 0,
-    },
-    {
-      id: 2,
-      task: 'Project B',
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 0,
-      sunday: 1,
-    },
-    {
-      id: 3,
-      task: 'Project C',
-      monday: 0,
-      tuesday: 1,
-      wednesday: 2,
-      thursday: 2,
-      friday: 3,
-      saturday: 4,
-      sunday: 5,
+      selectedProject: null,
+      monday: null,
+      tuesday: null,
+      wednesday: null,
+      thursday: null,
+      friday: null,
+      saturday: null,
+      sunday: null,
     },
   ])
 
+  const confirmDeleteTimesheetRecords = async () => {
+    try {
+      const { row, timesheetIds } = deleteRow
+      // Call the deleteTimesheetRecords API and wait for it to complete
+      await deleteTimesheetRecords(timesheetIds)
+      // Update the state to remove the row only after successful deletion
+      setRowData((prev) => prev.filter((filterRow) => filterRow.id !== row.id))
+      setShowDeleteModal(!showDeleteModal)
+      showToast('row deleted successfully', { color: 'success' })
+    } catch (error) {
+      showToast('Error deleting row', { color: 'danger' })
+      console.error('Error deleting timesheet records:', error)
+    }
+  }
   // Function to delete a row
-  const handleDelete = (id) => {
-    setData(data.filter((row) => row.id !== id))
+  const handleDelete = (row) => {
+    // sometimes rows are not deleting
+    //  console.log(rowData)
+    // Check if there are multiple rows in the data
+    if (rowData.length <= 1) {
+      console.warn('Cannot delete the last row.')
+      return
+    }
+
+    // Extract all timesheet_id values from the row object
+    const timesheetIds = Object.keys(row)
+      .filter((key) => key !== 'id') // Exclude the 'id' field
+      .map((day) => row[day]?.timesheet_id) // Map to timesheet_id
+      .filter((id) => id !== undefined) // Remove undefined values
+
+    //  console.log('Timesheet IDs to delete:', timesheetIds)
+
+    // Ensure there are timesheet IDs to delete
+    if (timesheetIds.length === 0) {
+      console.warn('No timesheet records found to delete.')
+      setRowData((prev) => prev.filter((filterRow) => filterRow.id !== row.id))
+      return
+    }
+
+    // open download modal
+    setDeleteRow({ row, timesheetIds })
+    setShowDeleteModal(!showDeleteModal)
+    //confirmDeleteTimesheetRecords(row,timesheetIds)
   }
 
   // Function to add a new row
   const handleAddRow = () => {
     const newRow = {
-      id: data.length + 1,
-      task: `New Task ${data.length + 1}`,
-      monday: 0,
-      tuesday: 0,
-      wednesday: 0,
-      thursday: 0,
-      friday: 0,
-      saturday: 0,
-      sunday: 0,
+      id: v4(),
+      selectedProject: null,
+      monday: null,
+      tuesday: null,
+      wednesday: null,
+      thursday: null,
+      friday: null,
+      saturday: null,
+      sunday: null,
     }
-    setData([...data, newRow])
+    setRowData([...rowData, newRow])
   }
 
-  // Calculate column totals
-  const totals = data.reduce(
-    (acc, row) => {
-      acc.monday += row.monday
-      acc.tuesday += row.tuesday
-      acc.wednesday += row.wednesday
-      acc.thursday += row.thursday
-      acc.friday += row.friday
-      acc.saturday += row.saturday
-      acc.sunday += row.sunday
-      return acc
-    },
-    { monday: 0, tuesday: 0, wednesday: 0, thursday: 0, friday: 0, saturday: 0, sunday: 0 },
-  )
+  let totals = calculateTotaltime(rowData)
 
-  const grandTotal =
-    totals.monday +
-    totals.tuesday +
-    totals.wednesday +
-    totals.thursday +
-    totals.friday +
-    totals.saturday +
-    totals.sunday
+  function calculateGrandTotal(totals) {
+    // Convert "hours:minutes" to total minutes
+    const timeToMinutes = (time) => {
+      const [hours, minutes] = time.split(':').map(Number)
+      return hours * 60 + minutes
+    }
+
+    // Convert total minutes back to "hours:minutes"
+    const minutesToTime = (minutes) => {
+      const hours = Math.floor(minutes / 60)
+      const mins = minutes % 60
+      return `${hours}:${mins.toString().padStart(2, '0')}`
+    }
+
+    // Sum all the times in the object
+    let totalMinutes = 0
+    for (const day in totals) {
+      totalMinutes += timeToMinutes(totals[day])
+    }
+
+    // Return the total time in "hours:minutes" format
+    return minutesToTime(totalMinutes)
+  }
+
+  const grandTotal = calculateGrandTotal(totals)
 
   // Helper function to get the day name and date
   const getDayLabel = (dayOffset) => {
     const today = new Date()
-    const day = new Date(today)
-    day.setDate(today.getDate() + dayOffset)
+    const day = new Date(firstDay ? firstDay : today)
+    day.setDate(day.getDate() + dayOffset)
     const options = { weekday: 'short', day: 'numeric', month: 'short' }
     return day.toLocaleDateString('en-US', options).replace(',', '')
   }
 
   return (
     <>
-      <CTable hover responsive style={{ border: '1px solid #ccc'}}>
+      <DeleteRowModal
+        visible={showDeleteModal}
+        setVisible={setShowDeleteModal}
+        confirmDeleteTimesheetRecords={confirmDeleteTimesheetRecords}
+      />
+      <CTable hover responsive style={{ border: '1px solid #ccc' }}>
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell scope="col" style={headerStyle}>
               Task
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(0)} {/* Monday */}
+              {getDayLabel(0)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(1)} {/* Tuesday */}
+              {getDayLabel(1)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(2)} {/* Wednesday */}
+              {getDayLabel(2)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(3)} {/* Thursday */}
+              {getDayLabel(3)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(4)} {/* Friday */}
+              {getDayLabel(4)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(5)} {/* Saturday */}
+              {getDayLabel(5)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              {getDayLabel(6)} {/* Sunday */}
+              {getDayLabel(6)}
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
-              Total
+              Total:
             </CTableHeaderCell>
             <CTableHeaderCell scope="col" style={headerStyle}>
               Actions
@@ -156,56 +563,29 @@ const TimesheetTable = () => {
           </CTableRow>
         </CTableHead>
         <CTableBody>
-          {data.map((row, index) => {
-            const rowTotal =
-              row.monday +
-              row.tuesday +
-              row.wednesday +
-              row.thursday +
-              row.friday +
-              row.saturday +
-              row.sunday
-            return (
-              <CTableRow key={row.id}>
-                <CTableDataCell style={cellStyle}>{row.task}</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.monday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.tuesday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.wednesday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.thursday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.friday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.saturday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{row.sunday}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>{rowTotal}h</CTableDataCell>
-                <CTableDataCell style={cellStyle}>
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <CIcon
-                      customClassName="nav-icon"
-                      icon={cilX}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        cursor: 'pointer',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleDelete(row.id)}
-                    />
-                  </div>
-                </CTableDataCell>
-              </CTableRow>
-            )
-          })}
+          {rowData.map((row) => (
+            <RowContainer
+              key={row.id}
+              row={row}
+              rowData={rowData}
+              setRowData={setRowData}
+              handleDelete={handleDelete}
+              employeeId={employeeId}
+              dateRange={dateRange}
+            />
+          ))}
         </CTableBody>
         <CTableFoot>
           <CTableRow>
-            <CTableHeaderCell style={headerStyle}>Total</CTableHeaderCell>
-            <CTableDataCell style={headerStyle}>{totals.monday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.tuesday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.wednesday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.thursday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.friday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.saturday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.sunday}h</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{grandTotal}h</CTableDataCell>
+            <CTableDataCell style={headerStyle}>Total:</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.monday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.tuesday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.wednesday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.thursday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.friday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.saturday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.sunday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{grandTotal}</CTableDataCell>
             <CTableDataCell style={headerStyle}></CTableDataCell>
           </CTableRow>
         </CTableFoot>

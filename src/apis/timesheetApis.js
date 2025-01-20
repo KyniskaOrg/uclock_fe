@@ -1,45 +1,61 @@
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:3000/api/project'
+const BASE_URL = 'http://localhost:3000/api/timesheet'
 
 /**
- * Create a new project
- * @param {Object} payload - The project data
- * @param {string} payload.projectName - The name of the project
- * @param {string|null} [payload.clientId] - The ID of the client (optional)
+ * Set timesheet record
+ * @param {Object} payload - The timesheet data
+ * @param {number} payload.employee_id - The ID of the employee
+ * @param {number} payload.project_id - The ID of the project
+ * @param {string} payload.date - The date (YYYY-MM-DD)
+ * @param {string} payload.hours_worked - The hours worked (HH:MM format)
  * @returns {Promise} - Axios response promise
  */
-const createProject = async (payload) => {
+const setTimesheetRecord = async (payload) => {
   try {
-    const response = await axios.post(`${BASE_URL}/createProject`, payload)
+    const response = await axios.post(`${BASE_URL}/setTimesheetRecord`, payload)
     return response.data // Return the data from the response
   } catch (error) {
-    console.error('Error creating project:', error.response?.data || error.message)
+    console.error('Error setting timesheet record:', error.response?.data || error.message)
     throw error
   }
 }
 
 /**
- * Fetch all projects with pagination, sorting, and filtering
- * @param {Object} payload - The parameters for fetching projects
- * @param {number} [payload.page=1] - The page number (default is 1)
- * @param {string} [payload.sortBy='name'] - The field by which to sort the projects (default is 'name')
- * @param {string} [payload.sortOrder='ASC'] - The sorting order, either 'ASC' (ascending) or 'DESC' (descending)
- * @param {string} [payload.projectName=''] - The project name filter (optional, empty string for no filter)
- * @returns {Promise} - Axios response promise with project data
+ * Get timesheet record
+ * @param {Object} params - Query parameters
+ * @param {number} params.employee_id - The ID of the employee
+ * @param {number} params.project_id - The ID of the project
+ * @param {string} params.start_date - The start date (YYYY-MM-DD)
+ * @returns {Promise} - Axios response promise
  */
-const getAllProjects = async (query) => {
+const getTimesheetRecord = async (params) => {
   try {
-    const response = await axios.get(`${BASE_URL}/getAllProjects`, {
-      params: {
-        ...query,
-      },
+    const response = await axios.get(`${BASE_URL}/getTimesheetRecord`, {
+      params, // Axios automatically appends query parameters
     })
     return response.data // Return the data from the response
   } catch (error) {
-    console.error('Error fetching projects:', error.response?.data || error.message)
+    console.error('Error getting timesheet record:', error.response?.data || error.message)
     throw error
   }
 }
 
-export { createProject, getAllProjects }
+/**
+ * Delete timesheet records
+ * @param {Array<number>} timesheetIds - Array of timesheet IDs to delete
+ * @returns {Promise} - Axios response promise
+ */
+const deleteTimesheetRecords = async (timesheetIds) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/deleteTimesheetRecord`, {
+      timesheet_ids: timesheetIds, // Send the array in the request body
+    })
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error deleting timesheet records:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords }

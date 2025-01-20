@@ -6,8 +6,7 @@ import { getAllEmployees } from '../../../apis/employeeApis'
 //import { useToast } from '../../../components/toaster'
 import Calender from '../../../components/calender/calneder'
 
-const EmployeeDropdown = () => {
-  const [value, onChange] = useState(null)
+const EmployeeDropdown = ({ setEmployee, employee }) => {
   const [currentPage, setCurrentPage] = useState(1) // To manage pagination
   const [isLoading, setIsLoading] = useState(false) // To manage loading state
 
@@ -21,7 +20,7 @@ const EmployeeDropdown = () => {
 
     setIsLoading(true)
     try {
-      let query = search ? { searchText: search } : { page: currentPage }
+      let query = search ? { searchText: search } : { page: currentPage, limit: 50 }
       const data = await getAllEmployees(query)
 
       // Extract employees from the API response
@@ -39,7 +38,6 @@ const EmployeeDropdown = () => {
       }
 
       setIsLoading(false)
-      console.log(employees)
       return {
         options: employees,
         hasMore,
@@ -56,19 +54,15 @@ const EmployeeDropdown = () => {
 
   const customStyles = {
     // provide correct types here
-    control: (provided) => (
-      {
-        ...provided,
-        width: 250,
-        borderRadius: 8,
-        height: 40,
-      }
-    ),
-    option: (provided) => (
-      {
-        ...provided,
-      }
-    ),
+    control: (provided) => ({
+      ...provided,
+      width: 250,
+      borderRadius: 8,
+      height: 40,
+    }),
+    option: (provided) => ({
+      ...provided,
+    }),
     menuList: (provided) => ({
       ...provided,
       maxHeight: 200, // Limit dropdown height if needed
@@ -81,9 +75,9 @@ const EmployeeDropdown = () => {
     <AsyncPaginate
       styles={customStyles}
       options={[]} // Initial empty options list
-      value={value}
+      value={employee.value?employee:null}
       loadOptions={loadOptions}
-      onChange={onChange}
+      onChange={setEmployee}
       isLoading={isLoading}
       debounceTimeout={500}
       placeholder="Search employees..."
@@ -95,6 +89,9 @@ const EmployeeDropdown = () => {
 }
 
 const Timesheet = () => {
+  const [employee, setEmployee] = useState({ value: null, label: null })
+  const [dateRange, setDateRange] = useState({ firstDay: null, lastDay: null })
+
   return (
     <>
       <CRow className="align-items-center mb-3">
@@ -102,12 +99,13 @@ const Timesheet = () => {
           <h3>Timesheet</h3>
         </CCol>
         <CCol className="flex-row-end">
-          <EmployeeDropdown />
+          <div style={{ marginLeft: 10 }}>
+            <Calender dateRange={dateRange} setDateRange={setDateRange} />
+          </div>
+          <EmployeeDropdown setEmployee={setEmployee} employee={employee} />
         </CCol>
-        <Calender />
       </CRow>
-      <div></div>
-      <TimesheetTable />
+      <TimesheetTable employeeId={employee.value} dateRange={dateRange} />
     </>
   )
 }
