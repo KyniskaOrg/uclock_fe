@@ -48,6 +48,8 @@ const CustomTable = ({ loading, structuredData }) => {
     borderTop: 'none',
     padding: '8px',
     backgroundColor: 'rgb(37, 43, 54, 0.03)',
+    color: "rgb(153, 153, 153)",
+    fontSize: 15
   }
   const cellStyle = { border: '1px solid #ccc', padding: '8px' }
 
@@ -55,7 +57,7 @@ const CustomTable = ({ loading, structuredData }) => {
     Object.keys(columns).map((columnKey) => {
       const column = columns[columnKey]
       return (
-        <TableCell key={columnKey} sx={{ ...headerStyle, fontWeight: 'bold' }}>
+        <TableCell key={columnKey} sx={{ ...headerStyle}}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             {column.name}
             {column.allowsorting && (
@@ -76,7 +78,7 @@ const CustomTable = ({ loading, structuredData }) => {
       <TableRow
         key={i}
         sx={{
-          '&:hover': { backgroundColor: '#d9d9d9' },
+          '&:hover': { boxShadow:"0px 0px 14px -3px rgba(0,0,0,0.45)" },
         }}
       >
         {Object.keys(columns).map((columnKey) => {
@@ -91,9 +93,9 @@ const CustomTable = ({ loading, structuredData }) => {
     ))
 
   return (
-    <CCard className="mb-4" style={{ border: 'none' }}>
+    <CCard className="mb-4" style={{ background: '#e4eaee', borderRadius:0 }}>
       {searchableTable && (
-        <CCardHeader style={{ border: '1px rgba(8, 10, 12, 0.175) solid' }}>
+        <CCardHeader >
           <CInputGroup>
             <CFormInput
               placeholder="search"
@@ -124,7 +126,7 @@ const CustomTable = ({ loading, structuredData }) => {
               <TableHead>
                 <TableRow>{renderHeader()}</TableRow>
               </TableHead>
-              <TableBody>{renderBody()}</TableBody>
+              <TableBody style={{background:"white"}}>{renderBody()}</TableBody>
             </Table>
           </TableContainer>
         ) : (

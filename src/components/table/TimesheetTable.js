@@ -80,9 +80,9 @@ const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
     const updatedData = rowData.map((item) =>
       item.id === rowId ? { ...item, selectedProject: selectedOption.value } : item,
     )
-   // console.log(updatedData)
+    // console.log(updatedData)
     const hasNullSelectedProject = updatedData.some((item) => item.selectedProject === null)
-   // console.log(hasNullSelectedProject)
+    // console.log(hasNullSelectedProject)
     if (!hasNullSelectedProject) {
       const newRow = {
         id: v4(),
@@ -347,7 +347,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
   const rowTotal = calculateRowTotal(row)
 
   return (
-    <CTableRow key={row.id}>
+    <CTableRow key={row.id} className="custom-shadow-hover">
       <CTableDataCell style={cellStyle}>
         <ProjectDropdown
           value={project}

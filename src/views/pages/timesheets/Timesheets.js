@@ -59,15 +59,18 @@ const EmployeeDropdown = ({ setEmployee, employee }) => {
       width: 250,
       borderRadius: 8,
       height: 40,
+      cursor: 'pointer',
     }),
     option: (provided) => ({
       ...provided,
+      cursor: 'pointer',
     }),
     menuList: (provided) => ({
       ...provided,
       maxHeight: 200, // Limit dropdown height if needed
       overflowY: 'auto',
       scrollbarWidth: 'thin', // For Firefox
+      cursor: 'pointer',
     }),
   }
 
@@ -75,7 +78,7 @@ const EmployeeDropdown = ({ setEmployee, employee }) => {
     <AsyncPaginate
       styles={customStyles}
       options={[]} // Initial empty options list
-      value={employee.value?employee:null}
+      value={employee.value ? employee : null}
       loadOptions={loadOptions}
       onChange={setEmployee}
       isLoading={isLoading}
