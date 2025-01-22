@@ -19,7 +19,7 @@ const Projects = React.lazy(() => import('./views/pages/projects/Projects'))
 const Clients = React.lazy(() => import('./views/pages/clients/Clients'))
 const Employee = React.lazy(() => import('./views/pages/employee/Employee'))
 const Timesheet = React.lazy(() => import('./views/pages/timesheets/Timesheets'))
-
+const Reports = React.lazy(() => import('./views/pages/reports/reports'))
 
 const App = () => {
   return (
@@ -43,7 +43,7 @@ const App = () => {
             name="Timesheet"
             element={
               <DefaultLayout>
-               <Timesheet/>
+                <Timesheet />
               </DefaultLayout>
             }
           />
@@ -53,7 +53,7 @@ const App = () => {
             name="Reports"
             element={
               <DefaultLayout>
-                <div>rep</div>
+                <Reports />
               </DefaultLayout>
             }
           />
