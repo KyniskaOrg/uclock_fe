@@ -19,7 +19,6 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CFormInput,
   CForm,
 } from '@coreui/react'
 import { v4 } from 'uuid'

@@ -3,6 +3,7 @@ import { PDFDownloadLink, Document, Page, Image, Text, StyleSheet } from '@react
 import { CButton } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilPrint } from '@coreui/icons'
+import * as htmlToImage from 'html-to-image'
 
 // Create styles for the PDF
 const styles = StyleSheet.create({
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
 const MyDocument = ({ barChartImage, doughnutChartImage }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <Text style={styles.title}> Report</Text>
+      <Text style={styles.title}>Report</Text>
       {barChartImage && <Image src={barChartImage} style={styles.chartImage} />}
       {doughnutChartImage && <Image src={doughnutChartImage} style={styles.chartImage} />}
     </Page>
@@ -34,38 +35,40 @@ const MyDocument = ({ barChartImage, doughnutChartImage }) => (
 )
 
 // Main component to render the download link
-const DownloadPdf = ({ barChartRef, doughnutChartRef }) => {
-  let chartImage,
-    chartImage2 = ''
+const DownloadPdf = ({ isChartUpdated }) => {
+  const [barChartImage, setBarChartImage] = useState(null) // State for Bar Chart image
+  const [isReady, setIsReady] = useState(false)
 
-  if (barChartRef.current) {
-    const chartInstance = barChartRef.current.chartInstance || barChartRef.current // Access Chart.js instance
-    chartImage = chartInstance.toBase64Image() // Generate Base64 image
-  } else {
-    console.error('Chart instance is not available.')
-  }
-  if (doughnutChartRef.current) {
-    const chartInstance = doughnutChartRef.current.chartInstance || doughnutChartRef.current // Access Chart.js instance
-    let x = document.getElementById('doughnutChartCurrent')
-    console.log(chartInstance)
-    chartImage2 = chartInstance.toBase64Image() // Generate Base64 image
-  } else {
-    console.error('Chart instance is not available.')
-  }
+  useEffect(() => {
+    // Generate the bar chart image using html-to-image
+    const barChart = document.getElementById('barChartCurrent') // Ensure this ID is set on your bar chart
+    if (isChartUpdated && barChart) {
+      console.log("xx__________________XXX_____________________ZZ")
+      htmlToImage
+        .toPng(barChart)
+        .then((dataUrl) => {
+          setBarChartImage(dataUrl) // Store the base64 image in state
+          setIsReady(true) // Mark the PDF as ready for download
+        })
+        .catch((error) => {
+          console.error('Error generating bar chart image:', error)
+        })
+    }
+  }, [isChartUpdated])
 
   return (
     <PDFDownloadLink
-      document={<MyDocument barChartImage={chartImage} doughnutChartImage={chartImage2} />}
-      fileName="bar_chart_report.pdf"
+      document={<MyDocument barChartImage={barChartImage} />}
+      fileName="report.pdf"
       style={{
         color: '#fff',
         textDecoration: 'none',
       }}
     >
       {({ loading }) => (
-        <CButton color="primary">
+        <CButton color="primary" disabled={!isReady}>
           {loading ? (
-            '...'
+            'Preparing...'
           ) : (
             <CIcon
               customClassName="nav-icon"
