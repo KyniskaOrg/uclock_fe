@@ -58,4 +58,24 @@ const deleteTimesheetRecords = async (timesheetIds) => {
   }
 }
 
-export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords }
+/**
+ * download timesheet csv
+ * @param {Object} params - Query parameters
+ * @param {number} params.employee_id - The ID of the employee
+ * @param {number} params.project_id - The ID of the project
+ * @param {string} params.start_date - The start date (YYYY-MM-DD)
+ * @returns {Promise} - Axios response promise
+ */
+const downloadTimesheetCsv = async (params) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/downloadTimesheetCsv`, {
+      params, // Axios automatically appends query parameters
+    })
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error getting timesheet record:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv }

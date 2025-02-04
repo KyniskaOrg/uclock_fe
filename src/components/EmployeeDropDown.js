@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import { getAllEmployees } from '../apis/employeeApis'
+import zIndex from '@mui/material/styles/zIndex'
 
-const EmployeeDropdown = ({ setEmployee, employee, customStyles, placeholder }) => {
+const EmployeeDropdown = ({
+  setEmployee,
+  employee,
+  customStyles,
+  placeholder,
+  isMulti = false,
+}) => {
   const [currentPage, setCurrentPage] = useState(1) // To manage pagination
   const [isLoading, setIsLoading] = useState(false) // To manage loading state
 
@@ -68,15 +75,13 @@ const EmployeeDropdown = ({ setEmployee, employee, customStyles, placeholder }) 
           maxHeight: 200, // Limit dropdown height if needed
           overflowY: 'auto',
           scrollbarWidth: 'thin', // For Firefox
-          cursor: 'pointer',
         }),
       }
-
   return (
     <AsyncPaginate
       styles={stylesProps}
       options={[]} // Initial empty options list
-      value={employee.value ? employee : null}
+      value={employee.length ? employee : employee.value ? employee : null}
       loadOptions={loadOptions}
       onChange={setEmployee}
       isLoading={isLoading}
@@ -85,6 +90,7 @@ const EmployeeDropdown = ({ setEmployee, employee, customStyles, placeholder }) 
       additional={{
         page: currentPage, // Pass current page to load more results
       }}
+      isMulti={isMulti}
     />
   )
 }

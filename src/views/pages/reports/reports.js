@@ -36,10 +36,10 @@ const Reports = () => {
   const [employee, setEmployee] = useState({ value: null, label: null })
   const [project, setProject] = useState({ value: null, label: null })
   const [timesheetData, setTimesheetData] = useState([]) // Store the full timesheet data
-  const [isChartUpdated, setIsChartUpdated] = useState(false);
+  const [isChartUpdated, setIsChartUpdated] = useState(false)
 
   const barChartRef = useRef(null) // Ref for the Bar chart
-  const doughnutChartRef = useRef(null) // Ref for the Doughnut chart
+  // const doughnutChartRef = useRef(null) // Ref for the Doughnut chart
 
   const getDayLabel = (dayOffset) => {
     const today = new Date()
@@ -155,43 +155,43 @@ const Reports = () => {
   }
 
   // Data for Doughnut Chart
-  const doughnutChartData = {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    animation: {
-      duration: 0, // Fully disable animations
-    },
-    datasets: [
-      {
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40'],
-        hoverBackgroundColor: [
-          '#ff6384aa',
-          '#36a2ebaa',
-          '#ffce56aa',
-          '#4bc0c0aa',
-          '#9966ffaa',
-          '#ff9f40aa',
-        ],
-      },
-    ],
-  }
+  // const doughnutChartData = {
+  //   labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+  //   animation: {
+  //     duration: 0, // Fully disable animations
+  //   },
+  //   datasets: [
+  //     {
+  //       label: '# of Votes',
+  //       data: [12, 19, 3, 5, 2, 3],
+  //       backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40'],
+  //       hoverBackgroundColor: [
+  //         '#ff6384aa',
+  //         '#36a2ebaa',
+  //         '#ffce56aa',
+  //         '#4bc0c0aa',
+  //         '#9966ffaa',
+  //         '#ff9f40aa',
+  //       ],
+  //     },
+  //   ],
+  // }
 
-  const doughnutChartOptions = {
-    responsive: true,
-    animation: {
-      duration: 0,
-    },
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Over Time',
-      },
-    },
-  }
+  // const doughnutChartOptions = {
+  //   responsive: true,
+  //   animation: {
+  //     duration: 0,
+  //   },
+  //   plugins: {
+  //     legend: {
+  //       position: 'top',
+  //     },
+  //     title: {
+  //       display: true,
+  //       text: 'Over Time',
+  //     },
+  //   },
+  // }
 
   const fetchTimesheetDate = async (query) => {
     try {
@@ -251,23 +251,32 @@ const Reports = () => {
               />
             </CCol>
             <CCol className="flex-row-end">
-              <DownloadPdf barChartRef={barChartRef} doughnutChartRef={doughnutChartRef} isChartUpdated={isChartUpdated} />
+              <DownloadPdf
+                barChartRef={barChartRef}
+                // doughnutChartRef={doughnutChartRef}
+                isChartUpdated={isChartUpdated}
+              />
             </CCol>
           </CRow>
         </CCardHeader>
         <CCardBody>
-          <div style={{ width: '100%', height: '60vh' }}>
-            <Bar id ="barChartCurrent" ref={barChartRef} data={barChartData} options={barChartOptions} />
+          <div style={{ width: '100%', height: 'auto' }}>
+            <Bar
+              id="barChartCurrent"
+              ref={barChartRef}
+              data={barChartData}
+              options={barChartOptions}
+            />
           </div>
           {/* Doughnut Chart Card */}
-          <div style={{ width: '100%', height: '60vh' }}>
+          {/* <div style={{ width: '100%', height: '60vh' }}>
             <Doughnut
               id="doughnutChartCurrent"
               ref={doughnutChartRef}
               data={doughnutChartData}
               options={doughnutChartOptions}
             />
-          </div>
+          </div> */}
         </CCardBody>
       </CCard>
     </>

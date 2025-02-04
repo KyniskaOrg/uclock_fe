@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import { getAllProjects } from '../apis/projectApis'
 
-const ProjectDropdown = ({ value, setValue, customStyles,placeholder }) => {
+const ProjectDropdown = ({ value, setValue, customStyles, placeholder, isMulti = false }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -48,16 +48,23 @@ const ProjectDropdown = ({ value, setValue, customStyles,placeholder }) => {
   const styleProps = customStyles
     ? customStyles
     : {
+        // provide correct types here
         control: (provided) => ({
           ...provided,
-          width: 200,
+          width: 250,
+          borderRadius: 8,
           height: 40,
+          cursor: 'pointer',
+        }),
+        option: (provided) => ({
+          ...provided,
+          cursor: 'pointer',
         }),
         menuList: (provided) => ({
           ...provided,
-          maxHeight: 200,
+          maxHeight: 200, // Limit dropdown height if needed
           overflowY: 'auto',
-          scrollbarWidth: 'thin',
+          scrollbarWidth: 'thin', // For Firefox
         }),
       }
 
@@ -65,16 +72,17 @@ const ProjectDropdown = ({ value, setValue, customStyles,placeholder }) => {
     <AsyncPaginate
       styles={styleProps}
       options={[]} // Initial empty options list
-      value={value.value ? value : null}
+      value={value.length ? value : value.value ? value : null} // value should be an array for multi-select
       loadOptions={loadOptions}
-      onChange={(selectedOption) => setValue(selectedOption)}
+      onChange={(selectedOptions) => setValue(selectedOptions)} // Handle array of selected options
       isLoading={isLoading}
       debounceTimeout={500}
       menuPortalTarget={document.body} // To display over table
-      placeholder={placeholder?placeholder:"Search..."}
+      placeholder={placeholder ? placeholder : 'Search...'}
       additional={{
         page: currentPage,
       }}
+      isMulti={isMulti} // Enable multi-select
     />
   )
 }

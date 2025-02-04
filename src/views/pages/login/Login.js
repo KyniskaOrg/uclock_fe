@@ -18,6 +18,7 @@ import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { login } from '../../../redux/reducers/authReducer' // Import login thunk
 import { useToast } from '../../../components/toaster'
+import logo from '../../../assets/images/logo.svg'
 
 const Login = () => {
   const { showToast } = useToast()
@@ -68,6 +69,7 @@ const Login = () => {
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
+        <img src={logo} style={{opacity:0.7, height:155}} />
           <CCol md={8}>
             <CCardGroup>
               <CCard className="p-4">

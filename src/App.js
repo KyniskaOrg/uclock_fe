@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { CSpinner } from '@coreui/react'
 import './scss/style.scss'
+import logo from './assets/images/logo.svg'
 
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
@@ -20,15 +21,17 @@ const Clients = React.lazy(() => import('./views/pages/clients/Clients'))
 const Employee = React.lazy(() => import('./views/pages/employee/Employee'))
 const Timesheet = React.lazy(() => import('./views/pages/timesheets/Timesheets'))
 const Reports = React.lazy(() => import('./views/pages/reports/reports'))
+const DetaildReports = React.lazy(() => import('./views/pages/detailed_reports/DetailedReports'))
+const WeeklyReports = React.lazy(() => import('./views/pages/weekly_reports/WeeklyReports'))
 
 const App = () => {
   return (
     <BrowserRouter>
       <Suspense
         fallback={
-          <div className="pt-3 text-center">
-            <CSpinner color="primary" variant="grow" />
-          </div>
+    <div className="pt-3 text-center loader" style={{ marginTop: '40vh' }}>
+      <img style={{ height: 70 }} src={logo} />
+    </div>
         }
       >
         <Routes>
@@ -36,7 +39,15 @@ const App = () => {
           <Route exact path="/register" name="Register Page" element={<Register />} />
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          <Route
+            path="*"
+            name="Home"
+            element={
+              <DefaultLayout>
+                <Timesheet />
+              </DefaultLayout>
+            }
+          />
           <Route
             exact
             path="/timesheet"
@@ -54,6 +65,26 @@ const App = () => {
             element={
               <DefaultLayout>
                 <Reports />
+              </DefaultLayout>
+            }
+          />
+          <Route
+            exactS
+            path="/detailed"
+            name="Reports"
+            element={
+              <DefaultLayout>
+                <DetaildReports />
+              </DefaultLayout>
+            }
+          />
+          <Route
+            exactS
+            path="/Weekly"
+            name="Reports"
+            element={
+              <DefaultLayout>
+                <WeeklyReports />
               </DefaultLayout>
             }
           />

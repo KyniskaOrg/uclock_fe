@@ -9,8 +9,6 @@ import {
   CSidebarHeader,
   CSidebarToggler,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-
 import { AppSidebarNav } from './AppSidebarNav'
 
 // sidebar nav config
@@ -18,6 +16,7 @@ import navigation from '../_nav'
 
 // Import the setSidebarShow action from uiSlice
 import { setSidebarShow } from '../redux/reducers/uiReducer'
+import logo from "../assets/images/logo.svg"
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
@@ -39,11 +38,9 @@ const AppSidebar = () => {
       visible={sidebarShow}
       onVisibleChange={handleSidebarVisibilityChange} // Use the dispatched action here
     >
-      <CSidebarHeader className="border-bottom">
+      <CSidebarHeader className="border-bottom" style={{padding:"0"}}>
         <CSidebarBrand to="/">
-          place logo here
-          {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
+          <img className="sidebar-brand-full" src={logo} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

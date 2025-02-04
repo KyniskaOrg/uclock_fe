@@ -26,6 +26,11 @@ const _nav = [
         name: 'Detailed',
         to: '/detailed',
       },
+      {
+        component: CNavItem,
+        name: 'Weekly',
+        to: '/weekly',
+      },
     ],
   },
   {

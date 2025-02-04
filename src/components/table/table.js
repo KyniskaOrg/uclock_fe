@@ -25,7 +25,12 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
-const CustomTable = ({ loading, structuredData }) => {
+const CustomTable = ({
+  loading,
+  structuredData,
+  customHeader: CustomHeader,
+  showFooter = true,
+}) => {
   const { setFilter, filter, data, searchableTable, columns, totalLength } = structuredData
   const [searchParam, setsearchParam] = useState('')
 
@@ -47,6 +52,46 @@ const CustomTable = ({ loading, structuredData }) => {
       sortOrder: newSortOrder,
     })
   }
+
+  const renderPaginationItems = () => {
+    const maxPageNumbersToShow = 5; // You can adjust this value
+    let pages = [];
+    
+    if (totalPages <= maxPageNumbersToShow) {
+      // Show all pages if totalPages is small
+      pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
+    } else {
+      const left = Math.max(2, filter.page - 1);
+      const right = Math.min(totalPages - 1, filter.page + 1);
+  
+      pages = [1];
+  
+      if (left > 2) {
+        pages.push("...");
+      }
+  
+      for (let i = left; i <= right; i++) {
+        pages.push(i);
+      }
+  
+      if (right < totalPages - 1) {
+        pages.push("...");
+      }
+  
+      pages.push(totalPages);
+    }
+  
+    return pages.map((page, idx) => (
+      <CPaginationItem
+        key={idx}
+        active={page === filter.page}
+        disabled={page === "..."}
+        onClick={() => page !== "..." && handlePageChange(page)}
+      >
+        {page}
+      </CPaginationItem>
+    ));
+  };
 
   const headerStyle = {
     padding: '8px',
@@ -93,6 +138,7 @@ const CustomTable = ({ loading, structuredData }) => {
 
   return (
     <CCard className="mb-4" style={{ background: '#e4eaee', borderRadius: 0 }}>
+      {CustomHeader && <CustomHeader />}
       {searchableTable && (
         <CCardHeader>
           <CInputGroup>
@@ -120,7 +166,7 @@ const CustomTable = ({ loading, structuredData }) => {
             <CSpinner color="dark" />
           </div>
         ) : data.length ? (
-          <CTable hover responsive >
+          <CTable hover responsive>
             <CTableHead>
               <CTableRow>{renderHeader()}</CTableRow>
             </CTableHead>
@@ -132,7 +178,8 @@ const CustomTable = ({ loading, structuredData }) => {
           </div>
         )}
       </CCardBody>
-      <CRow className="align-items-center mb-3 px-3">
+      {showFooter && (
+        <CRow className="align-items-center mb-3 px-3">
         <CCol style={{ paddingTop: 15, display: 'flex', justifyContent: 'flex-start' }}>
           <CPagination aria-label="Page navigation example" className="justify-content-center">
             <CPaginationItem
@@ -141,15 +188,9 @@ const CustomTable = ({ loading, structuredData }) => {
             >
               Previous
             </CPaginationItem>
-            {Array.from({ length: totalPages }, (_, idx) => (
-              <CPaginationItem
-                key={idx + 1}
-                active={filter.page === idx + 1}
-                onClick={() => handlePageChange(idx + 1)}
-              >
-                {idx + 1}
-              </CPaginationItem>
-            ))}
+      
+            {renderPaginationItems()}
+      
             <CPaginationItem
               disabled={filter.page === totalPages}
               onClick={() => handlePageChange(filter.page + 1)}
@@ -171,6 +212,7 @@ const CustomTable = ({ loading, structuredData }) => {
           </CDropdown>
         </CCol>
       </CRow>
+      )}
     </CCard>
   )
 }

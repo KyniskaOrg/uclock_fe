@@ -14,6 +14,7 @@ import {
 import { cilLockLocked, cilSettings, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { useToast } from '../../components/toaster'
+import avater from '../../assets/images/avater.png'
 
 const AppHeaderDropdown = () => {
   const dispatch = useDispatch()
@@ -28,8 +29,7 @@ const AppHeaderDropdown = () => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        use avatar here
-        {/* <CAvatar src={avatar8} size="md" /> */}
+        <CAvatar src={avater} size="md" style={{border:"solid #e4eaee 2px"}}/>
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CContainer className="col-md p-4 row justify-content-center" style={{ marginLeft: 0 }}>

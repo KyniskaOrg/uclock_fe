@@ -23,11 +23,11 @@ import {
 } from '@coreui/react'
 import { v4 } from 'uuid'
 import CIcon from '@coreui/icons-react'
-import { cilX } from '@coreui/icons'
+import { cilX, cilMoon, cilSun } from '@coreui/icons'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import { getAllProjects } from '../../apis/projectApis'
 import { calculateTotaltime, calculateRowTotal } from '../../utils/utils'
-
+import { CFormInput, CInputGroup, CInputGroupText } from '@coreui/react'
 
 const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
   const [currentPage, setCurrentPage] = useState(1)
@@ -104,16 +104,23 @@ const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
   }
 
   const customStyles = {
+    // provide correct types here
     control: (provided) => ({
       ...provided,
-      width: 200,
+      width: 250,
+      borderRadius: 8,
       height: 40,
+      cursor: 'pointer',
+    }),
+    option: (provided) => ({
+      ...provided,
+      cursor: 'pointer',
     }),
     menuList: (provided) => ({
       ...provided,
-      maxHeight: 200,
+      maxHeight: 200, // Limit dropdown height if needed
       overflowY: 'auto',
-      scrollbarWidth: 'thin',
+      scrollbarWidth: 'thin', // For Firefox
     }),
   }
 
@@ -147,8 +154,9 @@ const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
   )
 }
 
-const TimeInput = ({ value, onChange, disabeled }) => {
-  const [time, setTime] = useState('') // Stores raw user input
+const TimeInput = ({ value, onChange, disabeled, type }) => {
+  const [time, setTime] = useState('')
+  const [workType, setWorkType] = useState() // Stores raw user input
   const [formattedTime, setFormattedTime] = useState('') // Stores formatted time
   let totalMinutes = 0
   let hours = 0
@@ -157,7 +165,11 @@ const TimeInput = ({ value, onChange, disabeled }) => {
 
   useEffect(() => {
     setTime(value)
+    setFormattedTime(value)
   }, [value])
+  useEffect(() => {
+    setWorkType(type)
+  }, [type])
 
   // Format the time when focus is lost (onBlur)
   const handleBlur = () => {
@@ -179,18 +191,16 @@ const TimeInput = ({ value, onChange, disabeled }) => {
         const formatted = `${hours}:${minutes.toString().padStart(2, '0')}`
         setFormattedTime(formatted)
         setTime(formatted) // Reflect formatted time in the input
-        onChange(formatted)
+        onChange({ formatted, workType })
       } else {
         setFormattedTime('')
-        setTime('') // No match if the format is not valid
-        onChange('')
+        setTime('')
       }
     } else {
       // Test for anything other than digits (0-9) and colons (:)
       if (/[^0-9]/.test(time)) {
         setFormattedTime('')
         setTime('')
-        onChange('')
       }
       // Remove non-numeric characters for raw numbers
       const numericInput = time.replace(/\D/g, '')
@@ -203,7 +213,7 @@ const TimeInput = ({ value, onChange, disabeled }) => {
         formatted = `${hours}:${minutes.toString().padStart(2, '0')}`
         setFormattedTime(formatted)
         setTime(formatted) // Reflect formatted time in the input
-        onChange(formatted)
+        onChange({ formatted, workType })
       } else {
         // Convert input into proper MM:SS format
         hours = parseInt(numericInput.slice(0, -2), 10) // Remaining digits are hours
@@ -213,21 +223,60 @@ const TimeInput = ({ value, onChange, disabeled }) => {
         const formatted = `${hours}:${minutes.toString().padStart(2, '0')}`
         setFormattedTime(formatted)
         setTime(formatted) // Reflect formatted time in the input
-        onChange(formatted)
+        onChange({ formatted, workType })
       }
     }
   }
+  const checkNight = () => {
+    let type = workType === 'regular' ? 'night' : 'regular'
+    if (formattedTime) {
+      onChange({ formatted: formattedTime, workType: type })
+    }
+    setWorkType(type)
+  }
 
   return (
-    <input
-      disabled={disabeled}
-      className="custom-number-input"
-      id="timeInput"
-      type="text"
-      value={time}
-      onChange={(e) => setTime(e.target.value)}
-      onBlur={handleBlur} // Call handleBlur when focus is lost
-    />
+    <CInputGroup>
+      <CFormInput
+        disabled={disabeled}
+        className="custom-number-input"
+        id="timeInput"
+        type="text"
+        value={time}
+        onChange={(e) => setTime(e.target.value)}
+        onBlur={handleBlur}
+      />
+      {/* {console.log(workType)} */}
+      <CInputGroupText style={{ backgroundColor: disabeled ? '#e7eaee' : 'white', paddingTop: 2 }}>
+        <span>
+          {workType === 'night' ? (
+            <CIcon
+              customClassName="nav-icon"
+              icon={cilMoon}
+              style={{
+                width: '15px',
+                height: '20px',
+                cursor: 'pointer',
+                color: '#999',
+              }}
+              onClick={() => checkNight()} // Toggle workType when clicked
+            />
+          ) : (
+            <CIcon
+              customClassName="nav-icon"
+              icon={cilSun}
+              style={{
+                width: '15px',
+                height: '20px',
+                cursor: 'pointer',
+                color: '#999',
+              }}
+              onClick={() => checkNight()} // Toggle workType when clicked
+            />
+          )}
+        </span>
+      </CInputGroupText>
+    </CInputGroup>
   )
 }
 
@@ -307,13 +356,14 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
     }
   }
 
-  const setTimesheetData = async (value, day, date) => {
+  const setTimesheetData = async (value, day, date, workType) => {
     try {
       const body = {
         employee_id: employeeId,
         project_id: project.value,
         date,
         hours_worked: value,
+        work_type: workType || 'regular',
       }
       await setTimesheetRecord(body)
       //console.log('Updating timesheet:', body)
@@ -363,13 +413,16 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
           const dateStr = currentDate.toISOString().split('T')[0]
 
           return (
-            <CTableDataCell style={cellStyle} key={day}>
+            <CTableDataCell style={cellStyle} key={day + employeeId + project.value}>
               <TimeInput
+                type={row[day]?.work_type || 'regular'}
                 disabeled={!(employeeId && project.value)} // disabeled if project and employee is not selected
                 day={day} // Pass the day name
                 date={dateStr} // Pass the computed date
                 value={row[day]?.hours_worked || ''}
-                onChange={(value) => setTimesheetData(value, day, dateStr)}
+                onChange={(value) =>
+                  setTimesheetData(value.formatted, day, dateStr, value.workType)
+                }
               />
             </CTableDataCell>
           )

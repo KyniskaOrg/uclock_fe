@@ -42,8 +42,26 @@ input[type='number'] {
 
 .custom-shadow-hover:hover {
   position: relative; /* Ensures the row is elevated in the stacking context */
-  z-index: 1; /* Brings the row above adjacent elements */
+  z-index: 0; /* Brings the row above adjacent elements */
   
   box-shadow: 0px 0px 14px -3px rgba(0, 0, 0, 0.45); /* Add your box shadow */
   // transition: box-shadow 0.3s ease; /* Optional: Smooth transition effect */
+}
+
+.loader{
+  font-size: 48px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #fff;
+  animation: smokeOut 0.5s ease-in-out infinite alternate;
+  text-shadow: 0 0 1px white;
+}
+
+@keyframes smokeOut {
+  100% {
+    opacity: 0.08;
+    filter: blur(5px);
+    letter-spacing: 4px;
+  }
 }
