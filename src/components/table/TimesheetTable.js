@@ -579,7 +579,7 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
         setVisible={setShowDeleteModal}
         confirmDeleteTimesheetRecords={confirmDeleteTimesheetRecords}
       />
-      <CTable hover responsive style={{ border: '1px solid #ccc' }}>
+      <CTable hover responsive style={{ border: '1px solid #ccc', minWidth:1000 }}>
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell scope="col" style={headerStyle}>

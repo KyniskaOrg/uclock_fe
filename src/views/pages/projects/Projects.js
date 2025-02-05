@@ -79,6 +79,7 @@ const NewProjectModal = ({ visible, setVisible, fetchProjects }) => {
               <CFormSelect
                 aria-label="Select Client"
                 value={clientId}
+                required
                 onChange={(e) => setClientId(e.target.value)}
               >
                 <option value="">Select Client</option>

@@ -18,12 +18,14 @@ import { useToast } from '../../../components/toaster'
 const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   const { showToast } = useToast()
   const [employeeName, setEmployeeName] = useState('')
+  const [employeeEmail, setEmployeeEmail] = useState('')
 
   const handleCreateEmployee = async (event) => {
     event.preventDefault()
     try {
       const payload = {
         name: employeeName,
+        email:employeeEmail
       }
       await createEmployee(payload)
       showToast('Employee added successfully', { color: 'success' })
@@ -50,7 +52,17 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
                 value={employeeName}
                 minLength={3}
                 required
+                className='mb-3'
                 onChange={(e) => setEmployeeName(e.target.value)}
+              />
+              <CFormInput
+                id="clientEmail"
+                placeholder="Employee Email"
+                value={employeeEmail}
+                minLength={3}
+                type='email'
+                required
+                onChange={(e) => setEmployeeEmail(e.target.value)}
               />
             </CCol>
           </CRow>

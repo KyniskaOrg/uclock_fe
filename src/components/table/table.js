@@ -166,7 +166,7 @@ const CustomTable = ({
             <CSpinner color="dark" />
           </div>
         ) : data.length ? (
-          <CTable hover responsive>
+          <CTable hover responsive style={{marginBottom:0}}>
             <CTableHead>
               <CTableRow>{renderHeader()}</CTableRow>
             </CTableHead>
