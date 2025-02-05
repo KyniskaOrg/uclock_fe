@@ -105,8 +105,8 @@ const DetailedReports = () => {
       const key = `${item.employee_id}-${item.project_id}`
       if (!acc[key]) {
         acc[key] = {
-          name: `Employee ${item.employee_id}`, // Replace with employee name if available
-          projectName: `Project ${item.project_id}`, // Replace with project name if available
+          name: `${item.Employee.name} id - ${item.employee_id}`, // Replace with employee name if available
+          projectName: `${item.Project.name} id - ${item.project_id}`, // Replace with project name if available
         }
       }
       acc[key][item.date] = item.hours_worked
@@ -218,43 +218,49 @@ const DetailedReports = () => {
         customHeader={() => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
-              <CRow className="align-items-center">
-                <CCol style={{ display: 'flex', flexDirection: 'row' }}>
-                  <ProjectDropdown
-                    setValue={setProjects} // Pass setProjects for multi-select
-                    value={projects} // Pass projects array
-                    isMulti={true}
-                    customStyles={customStyles}
-                    placeholder="Projects"
-                  />
-                  <EmployeeDropdown
-                    setEmployee={setEmployees} // Pass setEmployees for multi-select
-                    employee={employees} // Pass employees array
-                    isMulti={true}
-                    customStyles={customStyles}
-                    placeholder="Employee"
-                  />
-                  <CCol className="flex-row-end">
-                    <CButton color="primary" disabled={false} onClick={() => DownloadExcel()}>
-                      {loading ? (
-                        'Preparing...'
-                      ) : (
-                        <CIcon
-                          customClassName="nav-icon"
-                          icon={cilPrint}
-                          style={{
-                            width: '15px',
-                            height: '20px',
-                            cursor: 'pointer',
-                            color: 'white',
-                          }}
-                        />
-                      )}
-                    </CButton>
+            <CRow className="align-items-center">
+              <CCol >
+                <CRow>
+                  <CCol style={{ width: 'auto' }}>
+                    <EmployeeDropdown
+                      setEmployee={setEmployees} // Pass setEmployees for multi-select
+                      employee={employees} // Pass employees array
+                      customStyles={customStyles}
+                      isMulti={true}
+                      placeholder="Employee"
+                    />
                   </CCol>
-                </CCol>
-              </CRow>
-            </CCardHeader>
+                  <CCol style={{ width: 'auto' }}>
+                    <ProjectDropdown
+                      setValue={setProjects} // Pass setProjects for multi-select
+                      value={projects} // Pass projects array
+                      customStyles={customStyles}
+                      isMulti={true}
+                      placeholder="Projects"
+                    />
+                  </CCol>
+                </CRow>
+              </CCol>
+              <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <CButton color="primary" disabled={!data.length} onClick={() => DownloadExcel()}>
+                  {loading ? (
+                    'Preparing...'
+                  ) : (
+                    <CIcon
+                      customClassName="nav-icon"
+                      icon={cilPrint}
+                      style={{
+                        width: '15px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        color: 'white',
+                      }}
+                    />
+                  )}
+                </CButton>
+              </CCol>
+            </CRow>
+          </CCardHeader>
           )
         }}
       />

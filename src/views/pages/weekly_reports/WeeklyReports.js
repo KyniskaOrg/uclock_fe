@@ -165,12 +165,14 @@ const WeeklyReports = () => {
     <>
       <CRow className="align-items-center mb-3">
         <CCol xs={5} xl={2}>
-          <h3>Reports/Weekly</h3>
+          <h3>Timesheet</h3>
         </CCol>
-        <CCol className="flex-row-end">
-          <div style={{ marginLeft: 10 }}>
-            <Calender dateRange={dateRange} setDateRange={setDateRange} />
-          </div>
+        <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <CRow>
+            <CCol style={{ width: 'auto' }}>
+              <Calender dateRange={dateRange} setDateRange={setDateRange} />
+            </CCol>
+          </CRow>
         </CCol>
       </CRow>
       <CustomTable
@@ -181,41 +183,43 @@ const WeeklyReports = () => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
               <CRow className="align-items-center">
-                <CCol style={{ display: 'flex', flexDirection: 'row' }}>
-                  <ProjectDropdown
-                    setValue={setProjects} // Pass setProjects for multi-select
-                    value={projects} // Pass projects array
-                    customStyles={customStyles}
-                    placeholder="Projects"
-                  />
-                  <EmployeeDropdown
-                    setEmployee={setEmployees} // Pass setEmployees for multi-select
-                    employee={employees} // Pass employees array
-                    customStyles={customStyles}
-                    placeholder="Employee"
-                  />
-                  <CCol className="flex-row-end">
-                    <CButton
-                      color="primary"
-                      disabled={!data.length}
-                      onClick={() => DownloadExcel()}
-                    >
-                      {loading ? (
-                        'Preparing...'
-                      ) : (
-                        <CIcon
-                          customClassName="nav-icon"
-                          icon={cilPrint}
-                          style={{
-                            width: '15px',
-                            height: '20px',
-                            cursor: 'pointer',
-                            color: 'white',
-                          }}
-                        />
-                      )}
-                    </CButton>
-                  </CCol>
+                <CCol >
+                  <CRow>
+                    <CCol style={{ width: 'auto' }}>
+                      <EmployeeDropdown
+                        setEmployee={setEmployees} // Pass setEmployees for multi-select
+                        employee={employees} // Pass employees array
+                        customStyles={customStyles}
+                        placeholder="Employee"
+                      />
+                    </CCol>
+                    <CCol style={{ width: 'auto' }}>
+                      <ProjectDropdown
+                        setValue={setProjects} // Pass setProjects for multi-select
+                        value={projects} // Pass projects array
+                        customStyles={customStyles}
+                        placeholder="Projects"
+                      />
+                    </CCol>
+                  </CRow>
+                </CCol>
+                <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <CButton color="primary" disabled={!data.length} onClick={() => DownloadExcel()}>
+                    {loading ? (
+                      'Preparing...'
+                    ) : (
+                      <CIcon
+                        customClassName="nav-icon"
+                        icon={cilPrint}
+                        style={{
+                          width: '15px',
+                          height: '20px',
+                          cursor: 'pointer',
+                          color: 'white',
+                        }}
+                      />
+                    )}
+                  </CButton>
                 </CCol>
               </CRow>
             </CCardHeader>

@@ -236,21 +236,27 @@ const Reports = () => {
       <CCard className="mb-4" style={{ borderRadius: 0 }}>
         <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
           <CRow className="align-items-center">
-            <CCol style={{ display: 'flex', flexDirection: 'row' }}>
-              <ProjectDropdown
-                setValue={setProject}
-                value={project}
-                customStyles={customStyles}
-                placeholder="Projects"
-              />
-              <EmployeeDropdown
-                setEmployee={setEmployee}
-                employee={employee}
-                customStyles={customStyles}
-                placeholder="Employee"
-              />
+            <CCol>
+              <CRow>
+                <CCol style={{ width: 'auto' }}>
+                  <EmployeeDropdown
+                    setEmployee={setEmployee}
+                    employee={employee}
+                    customStyles={customStyles}
+                    placeholder="Employee"
+                  />
+                </CCol>
+                <CCol style={{ width: 'auto' }}>
+                  <ProjectDropdown
+                    setValue={setProject}
+                    value={project}
+                    customStyles={customStyles}
+                    placeholder="Projects"
+                  />
+                </CCol>
+              </CRow>
             </CCol>
-            <CCol className="flex-row-end">
+            <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <DownloadPdf
                 barChartRef={barChartRef}
                 // doughnutChartRef={doughnutChartRef}
