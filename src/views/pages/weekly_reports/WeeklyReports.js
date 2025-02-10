@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { CCol, CRow, CCardHeader, CButton } from '@coreui/react'
 import CustomTable from '../../../components/table/table'
-import Calender from '../../../components/calender/calneder'
+import MonthCalender from '../../../components/calender/monthCalneder'
 import EmployeeDropdown from '../../../components/EmployeeDropDown'
 import ProjectDropdown from '../../../components/ProjectDropDown'
-import { getTimesheetRecord, downloadTimesheetCsv } from '../../../apis/timesheetApis'
+import { getAllTimesheetRecords, downloadTimesheetCsv } from '../../../apis/timesheetApis'
 import { cilPrint } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
@@ -13,6 +13,8 @@ const WeeklyReports = () => {
   const [employees, setEmployees] = useState([]) // Array of selected employees
   const [projects, setProjects] = useState([])
   const [loading, isLoading] = useState(false) // Array of selected projects
+  const [totalCount, setTotalCount] = useState(0) // To track if data is being fetched
+
   // Array of selected projects
   const [filter, setFilter] = useState({
     searchText: '',
@@ -97,18 +99,21 @@ const WeeklyReports = () => {
     })
 
     setStructuredData({
-      ...structuredData,
       columns,
       data: rowData,
-      totalLength: rowData.length,
+      totalLength: totalCount,
+      setFilter: setFilter,
+      filter: filter,
+      searchableTable: false,
     })
   }
 
   // Fetch timesheet data based on selected filters
   const fetchTimesheetData = async (query) => {
     try {
-      const fetchedData = await getTimesheetRecord(query)
-      setData(fetchedData)
+      const fetchedData = await getAllTimesheetRecords(query)
+      setData(fetchedData.timesheets)
+      setTotalCount(fetchedData.totalRecords)
     } catch (error) {
       console.error('Error fetching timesheet data:', error)
     }
@@ -121,10 +126,12 @@ const WeeklyReports = () => {
       const endDate = new Date(dateRange.lastDay).toISOString().split('T')[0]
 
       let data = await downloadTimesheetCsv({
-        employee_id: employees.value,
-        project_id: projects.value,
+        employee_id: employees.length ? mapIdsToArray(employees) : null,
+        project_id: projects.length ? mapIdsToArray(projects) : null,
         start_date: startDate,
         end_date: endDate,
+        page: filter.page,
+        limit: filter.limit,
         detailed: false,
       })
 
@@ -136,25 +143,32 @@ const WeeklyReports = () => {
       }
     } catch (error) {
       console.error('Error fetching timesheet data:', error)
+      isLoading(false)
     }
+  }
+
+  function mapIdsToArray(data) {
+    return data.map((item) => item.value)
   }
 
   // Fetch data when filters change
   useEffect(() => {
-    if (dateRange.firstDay && employees.value && projects.value) {
+    if (dateRange.firstDay || employees.length || projects.length) {
       const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
       const endDate = new Date(dateRange.lastDay).toISOString().split('T')[0]
 
       fetchTimesheetData({
-        employee_id: employees.value,
-        project_id: projects.value,
+        employee_id: employees.length ? mapIdsToArray(employees) : null,
+        project_id: projects.length ? mapIdsToArray(projects) : null,
         start_date: startDate,
         end_date: endDate,
+        page: filter.page,
+        limit: filter.limit,
       })
     } else {
       setData([])
     }
-  }, [employees, dateRange, projects])
+  }, [employees, dateRange, projects, filter])
 
   // Regenerate structured data when data or date range changes
   useEffect(() => {
@@ -170,7 +184,7 @@ const WeeklyReports = () => {
         <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <CRow>
             <CCol style={{ width: 'auto' }}>
-              <Calender dateRange={dateRange} setDateRange={setDateRange} />
+              <MonthCalender dateRange={dateRange} setDateRange={setDateRange} />
             </CCol>
           </CRow>
         </CCol>
@@ -178,15 +192,16 @@ const WeeklyReports = () => {
       <CustomTable
         structuredData={structuredData}
         loading={false}
-        showFooter={false}
+        showFooter={true}
         customHeader={() => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
               <CRow className="align-items-center">
-                <CCol >
+                <CCol>
                   <CRow>
                     <CCol style={{ width: 'auto' }}>
                       <EmployeeDropdown
+                        isMulti={true}
                         setEmployee={setEmployees} // Pass setEmployees for multi-select
                         employee={employees} // Pass employees array
                         customStyles={customStyles}
@@ -195,6 +210,7 @@ const WeeklyReports = () => {
                     </CCol>
                     <CCol style={{ width: 'auto' }}>
                       <ProjectDropdown
+                        isMulti={true}
                         setValue={setProjects} // Pass setProjects for multi-select
                         value={projects} // Pass projects array
                         customStyles={customStyles}

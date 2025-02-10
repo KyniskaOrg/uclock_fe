@@ -16,20 +16,20 @@ const _nav = [
 
     icon: <CIcon icon={cilBarChart} customClassName="nav-icon" />,
     items: [
+      // {
+      //   component: CNavItem,
+      //   name: 'Summary',
+      //   to: '/reports',
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: 'Detailed',
+      //   to: '/detailed',
+      // },
       {
         component: CNavItem,
-        name: 'Summary',
+        name: 'Detailed Reports',
         to: '/reports',
-      },
-      {
-        component: CNavItem,
-        name: 'Detailed',
-        to: '/detailed',
-      },
-      {
-        component: CNavItem,
-        name: 'Weekly',
-        to: '/weekly',
       },
     ],
   },

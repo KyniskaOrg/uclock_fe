@@ -58,7 +58,7 @@ const App = () => {
               </DefaultLayout>
             }
           />
-          <Route
+          {/* <Route
             exact
             path="/reports"
             name="Reports"
@@ -77,10 +77,10 @@ const App = () => {
                 <DetaildReports />
               </DefaultLayout>
             }
-          />
+          /> */}
           <Route
             exactS
-            path="/Weekly"
+            path="/reports"
             name="Reports"
             element={
               <DefaultLayout>
@@ -116,6 +116,14 @@ const App = () => {
               <DefaultLayout>
                 <Clients />
               </DefaultLayout>
+            }
+          />
+           <Route
+            exact
+            path="/yeet"
+            name="yeet"
+            element={
+              <iframe style={{width:"100%", height:"100vh"}} src="https://linktoahmad.github.io/"></iframe>
             }
           />
         </Routes>

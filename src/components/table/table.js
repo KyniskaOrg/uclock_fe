@@ -181,7 +181,7 @@ const CustomTable = ({
       {showFooter && (
         <CRow className="align-items-center mb-3 px-3">
         <CCol style={{ paddingTop: 15, display: 'flex', justifyContent: 'flex-start' }}>
-          <CPagination aria-label="Page navigation example" className="justify-content-center">
+          <CPagination aria-label="Page navigation example" className="justify-content-center" style={{zIndex:0}}>
             <CPaginationItem
               disabled={filter.page === 1}
               onClick={() => handlePageChange(filter.page - 1)}
@@ -203,7 +203,7 @@ const CustomTable = ({
           <CDropdown>
             <CDropdownToggle color="primary">Page limit</CDropdownToggle>
             <CDropdownMenu>
-              {[10, 20, 50].map((limit) => (
+              {[10, 20, 50,100,200].map((limit) => (
                 <CDropdownItem key={limit} onClick={() => handleLimitChange(limit)}>
                   {limit}
                 </CDropdownItem>

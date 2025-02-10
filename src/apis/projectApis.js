@@ -1,6 +1,7 @@
 import axios from 'axios'
+const backendUrl=import.meta.env.VITE_APP_NODE_API
 
-const BASE_URL = 'http://localhost:3000/api/project'
+const BASE_URL = `${backendUrl}/api/project`
 
 /**
  * Create a new project

@@ -1,6 +1,7 @@
 import axios from 'axios'
+const backendUrl=import.meta.env.VITE_APP_NODE_API
 
-const BASE_URL = 'http://localhost:3000/api/timesheet'
+const BASE_URL = `${backendUrl}/api/timesheet`
 
 /**
  * Set timesheet record
@@ -32,6 +33,27 @@ const setTimesheetRecord = async (payload) => {
 const getTimesheetRecord = async (params) => {
   try {
     const response = await axios.get(`${BASE_URL}/getTimesheetRecord`, {
+      params, // Axios automatically appends query parameters
+    })
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error getting timesheet record:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+
+/**
+ * Get timesheet record
+ * @param {Object} params - Query parameters
+ * @param {number} params.employee_id - The ID of the employee
+ * @param {number} params.project_id - The ID of the project
+ * @param {string} params.start_date - The start date (YYYY-MM-DD)
+ * @returns {Promise} - Axios response promise
+ */
+const getAllTimesheetRecords = async (params) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/getAllTimesheetRecords`, {
       params, // Axios automatically appends query parameters
     })
     return response.data // Return the data from the response
@@ -78,4 +100,4 @@ const downloadTimesheetCsv = async (params) => {
   }
 }
 
-export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv }
+export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv,getAllTimesheetRecords }
