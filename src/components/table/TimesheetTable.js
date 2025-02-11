@@ -126,7 +126,7 @@ const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
 
   return (
     <div>
-      {showDropdown ? (
+      {true ? (
         <AsyncPaginate
           styles={customStyles}
           options={[]} // Initial empty options list
@@ -360,7 +360,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
     try {
       const body = {
         employee_id: employeeId,
-        project_id: project.value,
+        project_id: project.value || row.selectedProject,
         date,
         hours_worked: value,
         work_type: workType || 'regular',
@@ -399,7 +399,14 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
     <CTableRow key={row.id} className="custom-shadow-hover">
       <CTableDataCell style={cellStyle}>
         <ProjectDropdown
-          value={project}
+          value={
+            project.value
+              ? project
+              : {
+                  value: row.selectedProject,
+                  label: row.selectedProjectName,
+                }
+          }
           onChange={setProject}
           rowId={row.id}
           rowData={rowData}
@@ -416,7 +423,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
             <CTableDataCell style={cellStyle} key={day + employeeId + project.value}>
               <TimeInput
                 type={row[day]?.work_type || 'regular'}
-                disabeled={!(employeeId && project.value)} // disabeled if project and employee is not selected
+                disabeled={!(employeeId && (project.value || row.selectedProject))} // disabeled if project and employee is not selected
                 day={day} // Pass the day name
                 date={dateStr} // Pass the computed date
                 value={row[day]?.hours_worked || ''}
@@ -524,6 +531,7 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
     const newRow = {
       id: v4(),
       selectedProject: null,
+      selectedProjectName: '',
       monday: null,
       tuesday: null,
       wednesday: null,
@@ -572,6 +580,70 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
     return day.toLocaleDateString('en-US', options).replace(',', '')
   }
 
+  const fetchTimesheetData = async (query) => {
+    try {
+      const data = await getTimesheetRecord(query)
+      const newRows = []
+
+      // Get the starting date (Monday) of the week from the `dateRange`
+      const startDate = new Date(dateRange.firstDay)
+
+      // Define days of the week
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+      // Group data by project
+      const projectGroups = data.reduce((acc, entry) => {
+        if (!acc[entry.project_id]) {
+          acc[entry.project_id] = {
+            id: entry.project_id,
+            selectedProject: entry.project_id,
+            selectedProjectName: entry.Project.name,
+          }
+        }
+
+        const entryDate = new Date(entry.date).toISOString().split('T')[0]
+        const dayIndex = (new Date(entryDate).getDay() + 6) % 7 // Adjust to start from Monday
+        const dayName = days[dayIndex]
+
+        acc[entry.project_id][dayName] = entry
+        return acc
+      }, {})
+
+      // Create default empty objects for missing days
+      Object.values(projectGroups).forEach((project) => {
+        days.forEach((day, index) => {
+          const currentDate = new Date(startDate)
+          currentDate.setDate(startDate.getDate() + index)
+          const dateString = currentDate.toISOString().split('T')[0]
+
+          if (!project[day]) {
+            project[day] = {
+              date: dateString,
+              hours_worked: '',
+            }
+          }
+        })
+        newRows.push(project)
+      })
+
+      // Update the state with the new rows
+      setRowData([...newRows, newRows])
+    } catch (error) {
+      console.error('Error fetching timesheet data:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (dateRange.firstDay && employeeId) {
+      const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
+      fetchTimesheetData({
+        employee_id: employeeId,
+        project_id: null,
+        start_date: startDate,
+      })
+    }
+  }, [employeeId, dateRange])
+
   return (
     <>
       <DeleteRowModal
@@ -579,7 +651,7 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
         setVisible={setShowDeleteModal}
         confirmDeleteTimesheetRecords={confirmDeleteTimesheetRecords}
       />
-      <CTable hover responsive style={{ border: '1px solid #ccc', minWidth:1000 }}>
+      <CTable hover responsive style={{ border: '1px solid #ccc', minWidth: 1000 }}>
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell scope="col" style={headerStyle}>
