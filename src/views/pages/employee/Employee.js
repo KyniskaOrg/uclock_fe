@@ -12,7 +12,7 @@ import {
   CFormInput,
   CForm,
 } from '@coreui/react'
-import { createEmployee, getAllEmployees } from '../../../apis/employeeApis'
+import { createEmployee, getAllEmployees, editEmployee } from '../../../apis/employeeApis'
 import { useToast } from '../../../components/toaster'
 
 const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
@@ -25,7 +25,7 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
     try {
       const payload = {
         name: employeeName,
-        email:employeeEmail
+        email: employeeEmail,
       }
       await createEmployee(payload)
       showToast('Employee added successfully', { color: 'success' })
@@ -52,7 +52,7 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
                 value={employeeName}
                 minLength={3}
                 required
-                className='mb-3'
+                className="mb-3"
                 onChange={(e) => setEmployeeName(e.target.value)}
               />
               <CFormInput
@@ -60,7 +60,7 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
                 placeholder="Employee Email"
                 value={employeeEmail}
                 minLength={3}
-                type='email'
+                type="email"
                 required
                 onChange={(e) => setEmployeeEmail(e.target.value)}
               />
@@ -92,7 +92,24 @@ const Employee = () => {
     page: 1, // Current page for pagination
     limit: 10, // Current limit for pagination
   })
+  const { showToast } = useToast()
 
+  const EditEmployeeName = async (data) => {
+    try {
+      const payload = {
+        name: data.value,
+        employee_id: data.data.employee_id,
+      }
+      if (data.value && data.data.employee_id) {
+        await editEmployee(payload)
+        showToast('Employee updated successfully', { color: 'success' })
+      } else {
+        throw new Error()
+      }
+    } catch (error) {
+      showToast('error updating', { color: 'danger' })
+    }
+  }
   // Function to fetch all Employees with applied filters
   const structuredData = {
     columns: {
@@ -105,6 +122,8 @@ const Employee = () => {
         name: 'Employee Name', // Column name
         sortBy: 'name', // Default sort by name
         allowsorting: true, // Sorting allowed
+        allowEdit: true,
+        onEdit: EditEmployeeName,
       },
       col3: {
         name: 'Employee Email', // Column name
@@ -152,7 +171,11 @@ const Employee = () => {
           <h3>Teams</h3>
         </CCol>
         <CCol className="flex-row-end">
-          <NewEmployeeModal visible={visible} setVisible={setVisible} fetchEmployees={fetchEmployees} />
+          <NewEmployeeModal
+            visible={visible}
+            setVisible={setVisible}
+            fetchEmployees={fetchEmployees}
+          />
           <CButton color={'primary'} onClick={() => setVisible(true)}>
             Add new Employee
           </CButton>

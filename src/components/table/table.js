@@ -25,6 +25,27 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
+const EditebleCell = ({ value, key, onEnter }) => {
+  const [cellVal, setCellVal] = useState(value)
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault() // Prevents form submission behavior
+      onEnter(cellVal) // Call the provided function with the value
+    }
+  }
+
+  return (
+    <CFormInput
+      className="form-control-table"
+      key={key}
+      value={cellVal}
+      onChange={(e) => setCellVal(e.target.value)}
+      onKeyDown={handleKeyDown} // Detect Enter key
+    ></CFormInput>
+  )
+}
+
 const CustomTable = ({
   loading,
   structuredData,
@@ -54,44 +75,44 @@ const CustomTable = ({
   }
 
   const renderPaginationItems = () => {
-    const maxPageNumbersToShow = 5; // You can adjust this value
-    let pages = [];
-    
+    const maxPageNumbersToShow = 5 // You can adjust this value
+    let pages = []
+
     if (totalPages <= maxPageNumbersToShow) {
       // Show all pages if totalPages is small
-      pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
+      pages = Array.from({ length: totalPages }, (_, idx) => idx + 1)
     } else {
-      const left = Math.max(2, filter.page - 1);
-      const right = Math.min(totalPages - 1, filter.page + 1);
-  
-      pages = [1];
-  
+      const left = Math.max(2, filter.page - 1)
+      const right = Math.min(totalPages - 1, filter.page + 1)
+
+      pages = [1]
+
       if (left > 2) {
-        pages.push("...");
+        pages.push('...')
       }
-  
+
       for (let i = left; i <= right; i++) {
-        pages.push(i);
+        pages.push(i)
       }
-  
+
       if (right < totalPages - 1) {
-        pages.push("...");
+        pages.push('...')
       }
-  
-      pages.push(totalPages);
+
+      pages.push(totalPages)
     }
-  
+
     return pages.map((page, idx) => (
       <CPaginationItem
         key={idx}
         active={page === filter.page}
-        disabled={page === "..."}
-        onClick={() => page !== "..." && handlePageChange(page)}
+        disabled={page === '...'}
+        onClick={() => page !== '...' && handlePageChange(page)}
       >
         {page}
       </CPaginationItem>
-    ));
-  };
+    ))
+  }
 
   const headerStyle = {
     padding: '8px',
@@ -129,7 +150,15 @@ const CustomTable = ({
           const column = columns[columnKey]
           return (
             <CTableDataCell style={cellStyle} key={columnKey}>
-              {row[column.sortBy]}
+              {column.allowEdit ? (
+                <EditebleCell
+                  value={row[column.sortBy]}
+                  key={columnKey}
+                  onEnter={(val) => column.onEdit({ value: val, data: row })}
+                />
+              ) : (
+                row[column.sortBy]
+              )}
             </CTableDataCell>
           )
         })}
@@ -166,7 +195,7 @@ const CustomTable = ({
             <CSpinner color="dark" />
           </div>
         ) : data.length ? (
-          <CTable hover responsive style={{marginBottom:0}}>
+          <CTable hover responsive style={{ marginBottom: 0 }}>
             <CTableHead>
               <CTableRow>{renderHeader()}</CTableRow>
             </CTableHead>
@@ -180,38 +209,42 @@ const CustomTable = ({
       </CCardBody>
       {showFooter && (
         <CRow className="align-items-center mb-3 px-3">
-        <CCol style={{ paddingTop: 15, display: 'flex', justifyContent: 'flex-start' }}>
-          <CPagination aria-label="Page navigation example" className="justify-content-center" style={{zIndex:0}}>
-            <CPaginationItem
-              disabled={filter.page === 1}
-              onClick={() => handlePageChange(filter.page - 1)}
+          <CCol style={{ paddingTop: 15, display: 'flex', justifyContent: 'flex-start' }}>
+            <CPagination
+              aria-label="Page navigation example"
+              className="justify-content-center"
+              style={{ zIndex: 0 }}
             >
-              Previous
-            </CPaginationItem>
-      
-            {renderPaginationItems()}
-      
-            <CPaginationItem
-              disabled={filter.page === totalPages}
-              onClick={() => handlePageChange(filter.page + 1)}
-            >
-              Next
-            </CPaginationItem>
-          </CPagination>
-        </CCol>
-        <CCol className="flex-row-end">
-          <CDropdown>
-            <CDropdownToggle color="primary">Page limit</CDropdownToggle>
-            <CDropdownMenu>
-              {[10, 20, 50,100,200].map((limit) => (
-                <CDropdownItem key={limit} onClick={() => handleLimitChange(limit)}>
-                  {limit}
-                </CDropdownItem>
-              ))}
-            </CDropdownMenu>
-          </CDropdown>
-        </CCol>
-      </CRow>
+              <CPaginationItem
+                disabled={filter.page === 1}
+                onClick={() => handlePageChange(filter.page - 1)}
+              >
+                Previous
+              </CPaginationItem>
+
+              {renderPaginationItems()}
+
+              <CPaginationItem
+                disabled={filter.page === totalPages}
+                onClick={() => handlePageChange(filter.page + 1)}
+              >
+                Next
+              </CPaginationItem>
+            </CPagination>
+          </CCol>
+          <CCol className="flex-row-end">
+            <CDropdown>
+              <CDropdownToggle color="primary">Page limit</CDropdownToggle>
+              <CDropdownMenu>
+                {[10, 20, 50, 100, 200].map((limit) => (
+                  <CDropdownItem key={limit} onClick={() => handleLimitChange(limit)}>
+                    {limit}
+                  </CDropdownItem>
+                ))}
+              </CDropdownMenu>
+            </CDropdown>
+          </CCol>
+        </CRow>
       )}
     </CCard>
   )

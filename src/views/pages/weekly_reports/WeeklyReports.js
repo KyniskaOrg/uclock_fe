@@ -21,7 +21,7 @@ const WeeklyReports = () => {
     sortBy: null,
     sortOrder: null,
     page: 1,
-    limit: 10,
+    limit: 30,
   })
   const [data, setData] = useState([]) // Data from API
   const [structuredData, setStructuredData] = useState({
@@ -179,7 +179,7 @@ const WeeklyReports = () => {
     <>
       <CRow className="align-items-center mb-3">
         <CCol xs={5} xl={2}>
-          <h3>Timesheet</h3>
+          <h3>Reports</h3>
         </CCol>
         <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <CRow>

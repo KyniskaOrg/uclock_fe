@@ -7,6 +7,8 @@ const BASE_URL = `${backendUrl}/api/employee`
  * Create a new employee
  * @param {Object} payload - The project data
  * @param {string} payload.employeeName - The name of the project
+ * @param {string} payload.employeeEmail - The name of the project
+ * 
  * @returns {Promise} - Axios response promise
  */
 const createEmployee = async (payload) => {
@@ -15,6 +17,25 @@ const createEmployee = async (payload) => {
     return response.data // Return the data from the response
   } catch (error) {
     console.error('Error creating employee:', error.response?.data || error.message)
+    throw error;
+  }
+}
+
+
+
+/**
+ * Edit a new employee
+ * @param {Object} payload - The project data
+ * @param {string} payload.name - The name of the project
+ * @param {string} payload.employee_id - The name of the project
+ * @returns {Promise} - Axios response promise
+ */
+const editEmployee = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/editEmployee`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error updating employee:', error.response?.data || error.message)
     throw error;
   }
 }
@@ -42,4 +63,4 @@ const getAllEmployees = async (query) => {
   }
 }
 
-export { createEmployee, getAllEmployees }
+export { createEmployee, getAllEmployees,editEmployee }
