@@ -1,202 +1,136 @@
-import React, { useState, useEffect } from 'react'
-import './calender.css'
-import { v4 } from 'uuid'
-import { addMonths, endOfWeek, startOfWeek, subMonths, getDaysInMonth } from 'date-fns'
-import { cilArrowLeft, cilArrowRight, cilCalendar } from '@coreui/icons'
+import 'react-date-range/dist/styles.css' // main style file
+import '../dateRange/default.css' // theme css file
 import CIcon from '@coreui/icons-react'
+import { DateRangePicker, createStaticRanges } from 'react-date-range'
+import { useState, useRef, useEffect } from 'react'
+import { cilCalendar } from '@coreui/icons'
 
-const Calender = ({ setDateRange }) => {
+const getCurrentWeek = () => {
+  const today = new Date()
+  const startOfWeek = new Date(today)
+  startOfWeek.setDate(today.getDate() - today.getDay())
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  const endOfWeek = new Date(startOfWeek)
+  endOfWeek.setDate(startOfWeek.getDate() + 6)
+  endOfWeek.setHours(23, 59, 59, 999)
+
+  return {
+    startDate: startOfWeek,
+    endDate: endOfWeek,
+    key: 'selection',
+  }
+}
+
+const DateRange = ({ dateRange, setDateRange }) => {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState(new Date())
-  const [week, setWeek] = useState({
-    firstDay: startOfWeek(new Date(), { weekStartsOn: 1 }),
-    lastDay: endOfWeek(new Date(), { weekStartsOn: 1 }),
-  })
+  const datePickerRef = useRef(null)
 
   useEffect(() => {
-    setDateRange && setDateRange(week)
-  }, [week])
+    setDateRange(getCurrentWeek())
+  }, [setDateRange])
 
-  const isLeapYear = () => {
-    let leapYear = new Date(new Date().getFullYear(), 1, 29)
-    return leapYear.getDate() == 29
+  const handleSelect = (ranges) => {
+    const { startDate } = ranges.selection
+    const endDate = new Date(startDate)
+    endDate.setDate(startDate.getDate() + 6)
+    setDateRange({ startDate, endDate, key: 'selection' })
   }
 
   const convertDate = (date) => {
     let dt = new Date(date)
-
     return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`
   }
 
-  const handleClick = (e) => {
-    let localDate
-    if (e.target.id.includes('prev')) {
-      localDate = new Date(date.setDate(1))
-      setDate(new Date(date.setDate(1)))
-    } else if (e.target.id.includes('next')) {
-      localDate = new Date(date.setDate(getDaysInMonth(date)))
-      setDate(new Date(date.setDate(getDaysInMonth(date))))
-    } else {
-      localDate = new Date(date.setDate(e.target.id))
-      setDate(new Date(date.setDate(e.target.id)))
+  const handleDate = (action) => {
+    const { startDate, endDate } = dateRange
+    const totalDays = 7
+    let newStartDate, newEndDate
+
+    if (action === 'add') {
+      newStartDate = new Date(startDate)
+      newStartDate.setDate(newStartDate.getDate() + totalDays)
+
+      newEndDate = new Date(endDate)
+      newEndDate.setDate(newEndDate.getDate() + totalDays)
+    } else if (action === 'sub') {
+      newStartDate = new Date(startDate)
+      newStartDate.setDate(newStartDate.getDate() - totalDays)
+
+      newEndDate = new Date(endDate)
+      newEndDate.setDate(newEndDate.getDate() - totalDays)
     }
-    const firstDay = startOfWeek(localDate, { weekStartsOn: 1 })
-    const lastDay = endOfWeek(localDate, { weekStartsOn: 1 })
-    setWeek({ firstDay, lastDay })
+
+    setDateRange({ startDate: newStartDate, endDate: newEndDate, key: 'selection' })
   }
 
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'July',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ]
-
-  const days = {
-    1: 31,
-    2: isLeapYear() ? 29 : 28,
-    3: 31,
-    4: 30,
-    5: 31,
-    6: 30,
-    7: 31,
-    8: 31,
-    9: 30,
-    10: 31,
-    11: 30,
-    12: 31,
+  const handleBlur = (e) => {
+    // Check if the relatedTarget is inside the date picker
+    if (!datePickerRef.current.contains(e.relatedTarget)) {
+      setOpen(false)
+    }
   }
 
-  const renderDays = () => {
-    let month = date.getMonth() + 1
-    let ar = []
-    for (let i = 1; i <= days[month]; i++) {
-      let currentDate = new Date(date).setDate(i)
+  const customStaticRanges = createStaticRanges([
+    {
+      label: 'Last Week',
+      range: () => {
+        const today = new Date()
+        const startOfLastWeek = new Date(today)
+        startOfLastWeek.setDate(today.getDate() - today.getDay() - 7)
+        startOfLastWeek.setHours(0, 0, 0, 0)
 
-      let cName = 'single-number '
-      if (
-        new Date(week.firstDay).getTime() <= new Date(currentDate).getTime() &&
-        new Date(currentDate).getTime() <= new Date(week.lastDay).getTime()
-      ) {
-        cName = cName + 'selected-week'
-      }
+        const endOfLastWeek = new Date(startOfLastWeek)
+        endOfLastWeek.setDate(startOfLastWeek.getDate() + 6)
+        endOfLastWeek.setHours(23, 59, 59, 999)
 
-      ar.push(
-        <div key={v4()} id={i} className={cName} onClick={handleClick}>
-          {i}
-        </div>,
-      )
-    }
-
-    const displayDate = new Date(date).setDate(1)
-    let dayInTheWeek = new Date(displayDate).getDay()
-    if (dayInTheWeek < 1) {
-      dayInTheWeek = 7
-    }
-    let prevMonth = []
-    let prevMonthDays = new Date(date).getMonth()
-    if (prevMonthDays === 0) {
-      prevMonthDays = 12
-    }
-    for (let i = dayInTheWeek; i > 1; i--) {
-      let previousMonth = new Date(date).setMonth(new Date(date).getMonth() - 1)
-      let currentDate = new Date(previousMonth).setDate(days[prevMonthDays] - i + 2)
-      let cName = 'single-number other-month'
-      let currentTime = new Date(currentDate).getTime()
-      let firstTime = new Date(week.firstDay).getTime()
-      let endTime = new Date(week.lastDay).getTime()
-      if (currentTime >= firstTime && currentTime <= endTime) {
-        cName = 'single-number selected-week'
-      }
-
-      prevMonth.push(
-        <div onClick={handleClick} key={v4()} id={'prev-' + i} className={cName}>
-          {days[prevMonthDays] - i + 2}
-        </div>,
-      )
-    }
-
-    let nextMonth = []
-    let fullDays = 35
-    if ([...prevMonth, ...ar].length > 35) {
-      fullDays = 42
-    }
-
-    for (let i = 1; i <= fullDays - [...prevMonth, ...ar].length; i++) {
-      let cName = 'single-number other-month'
-      const lastDay = week.lastDay.getTime()
-      const lastDayOfMonth = new Date(new Date(date).setDate(getDaysInMonth(date)))
-
-      if (
-        lastDayOfMonth.getTime() <= lastDay &&
-        week.firstDay.getMonth() == lastDayOfMonth.getMonth()
-      ) {
-        cName = 'single-number selected-week'
-      }
-
-      nextMonth.push(
-        <div onClick={handleClick} key={v4()} id={'next-' + i} className={cName}>
-          {i}
-        </div>,
-      )
-    }
-    return [...prevMonth, ...ar, ...nextMonth]
-  }
-
-  const handleDate = (next) => {
-    let localDate = new Date(date)
-    if (next) {
-      localDate = addMonths(localDate, 1)
-    } else {
-      localDate = subMonths(localDate, 1)
-    }
-    setDate(new Date(localDate))
-  }
+        return { startDate: startOfLastWeek, endDate: endOfLastWeek }
+      },
+    },
+    {
+      label: 'This Week',
+      range: getCurrentWeek, // Using your existing function
+    },
+  ])
 
   return (
-    <div
-      className="week-picker-display"
-      onBlur={() => setOpen(false)}
-      onClick={() => setOpen(true)}
-      tabIndex={0}
-    >
-      <CIcon icon={cilCalendar} size="lg" />
-      <p style={{ margin: 0 }}>
-        {convertDate(week.firstDay)} - {convertDate(week.lastDay)}
-      </p>
-      {open && (
-        <div className="week-picker-options">
-          <div className="title-week">
-            <div onClick={() => handleDate()} className="arrow-container">
-              <CIcon icon={cilArrowLeft} customClassName="nav-icon" />
-            </div>
-            {`${months[date.getMonth()]} ${date.getFullYear()}`}
-            <div onClick={() => handleDate(true)} className="arrow-container">
-              <CIcon icon={cilArrowRight} customClassName="nav-icon" />
-            </div>
+    <div style={{ display: 'flex' }}>
+      <div
+        className="week-picker-display-left"
+        onBlur={handleBlur}
+        onClick={() => setOpen(true)}
+        tabIndex={0}
+        ref={datePickerRef}
+      >
+        <CIcon icon={cilCalendar} size="lg" />
+        <p style={{ margin: 0 }}>
+          {convertDate(dateRange.startDate)} - {convertDate(dateRange.endDate)}
+        </p>
+        {open && (
+          <div className="week-picker-options">
+            <DateRangePicker
+              months={1}
+              direction={'horizontal'}
+              rangeColors={['#5856d6']}
+              showDateDisplay={false}
+              showMonthAndYearPickers={false}
+              editableDateInputs={false}
+              ranges={[dateRange]}
+              staticRanges={customStaticRanges}
+              inputRanges={[]}
+              onChange={handleSelect}
+            />
           </div>
-          <div className="numbers-container">
-            <div className="single-number day">Mon</div>
-            <div className="single-number day">Tue</div>
-            <div className="single-number day">Wed</div>
-            <div className="single-number day">Thu</div>
-            <div className="single-number day">Fri</div>
-            <div className="single-number day">Sat</div>
-            <div className="single-number day">Sun</div>
-          </div>
-          <div className="numbers-container">{renderDays()}</div>
-        </div>
-      )}
+        )}
+      </div>
+      <div className="week-picker-display-mid" onClick={() => handleDate('sub')}>
+        <div className="wacky-buttons">{'<'}</div>
+      </div>
+      <div className="week-picker-display-right" onClick={() => handleDate('add')}>
+        <div className="wacky-buttons">{'>'}</div>
+      </div>
     </div>
   )
 }
 
-export default Calender
+export default DateRange

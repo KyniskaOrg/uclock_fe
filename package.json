@@ -17,7 +17,7 @@
     "lint": "eslint \"src/**/*.js\"",
     "serve": "vite preview",
     "start": "vite",
-      "generate-web-config": "node generate-web-config.js"
+    "generate-web-config": "node generate-web-config.js"
   },
   "dependencies": {
     "@coreui/chartjs": "^4.0.0",
@@ -43,6 +43,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
+    "react-date-range": "^2.0.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.28.0",

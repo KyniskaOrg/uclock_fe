@@ -324,7 +324,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
       const updatedRow = { ...row }
 
       // Get the starting date (Monday) of the week from the `dateRange`
-      const startDate = new Date(dateRange.firstDay)
+      const startDate = new Date(dateRange.startDate)
 
       // Define days of the week
       const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -383,8 +383,8 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
   }
 
   useEffect(() => {
-    if (dateRange.firstDay && employeeId && project.value) {
-      const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
+    if (dateRange.startDate && employeeId && project.value) {
+      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
       fetchTimesheetData({
         employee_id: employeeId,
         project_id: project.value,
@@ -415,8 +415,8 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
       </CTableDataCell>
       {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(
         (day, index) => {
-          const currentDate = new Date(dateRange.firstDay)
-          currentDate.setDate(new Date(dateRange.firstDay).getDate() + index)
+          const currentDate = new Date(dateRange.startDate)
+          currentDate.setDate(new Date(dateRange.startDate).getDate() + index)
           const dateStr = currentDate.toISOString().split('T')[0]
 
           return (
@@ -454,7 +454,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
 }
 
 const TimesheetTable = ({ employeeId, dateRange }) => {
-  const { firstDay } = dateRange
+  const { startDate } = dateRange
   const headerStyle = {
     padding: '8px',
     backgroundColor: 'rgba(37, 43, 54, 0.03)',
@@ -574,7 +574,7 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
   // Helper function to get the day name and date
   const getDayLabel = (dayOffset) => {
     const today = new Date()
-    const day = new Date(firstDay ? firstDay : today)
+    const day = new Date(startDate ? startDate : today)
     day.setDate(day.getDate() + dayOffset)
     const options = { weekday: 'short', day: 'numeric', month: 'short' }
     return day.toLocaleDateString('en-US', options).replace(',', '')
@@ -586,7 +586,7 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
       const newRows = []
 
       // Get the starting date (Monday) of the week from the `dateRange`
-      const startDate = new Date(dateRange.firstDay)
+      const startDate = new Date(dateRange.startDate)
 
       // Define days of the week
       const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -634,8 +634,8 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
   }
 
   useEffect(() => {
-    if (dateRange.firstDay && employeeId) {
-      const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
+    if (dateRange.startDate && employeeId) {
+      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
       fetchTimesheetData({
         employee_id: employeeId,
         project_id: null,

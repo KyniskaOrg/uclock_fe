@@ -6,7 +6,11 @@ import Calender from '../../../components/calender/calneder'
 
 const Timesheet = () => {
   const [employee, setEmployee] = useState({ value: null, label: null })
-  const [dateRange, setDateRange] = useState({ firstDay: null, lastDay: null })
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+    key: 'selection',
+  })
 
   return (
     <>

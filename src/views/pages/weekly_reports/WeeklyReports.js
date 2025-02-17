@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { CCol, CRow, CCardHeader, CButton } from '@coreui/react'
 import CustomTable from '../../../components/table/table'
-import MonthCalender from '../../../components/calender/monthCalneder'
+import DateRange from '../../../components/dateRange/DateRangePicker'
+import { endOfMonth, startOfMonth } from 'date-fns'
 import EmployeeDropdown from '../../../components/EmployeeDropDown'
 import ProjectDropdown from '../../../components/ProjectDropDown'
 import { getAllTimesheetRecords, downloadTimesheetCsv } from '../../../apis/timesheetApis'
@@ -9,7 +10,11 @@ import { cilPrint } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
 const WeeklyReports = () => {
-  const [dateRange, setDateRange] = useState({ firstDay: null, lastDay: null })
+  const [dateRange, setDateRange] = useState({
+    startDate: startOfMonth(new Date(), { weekStartsOn: 1 }),
+    endDate: endOfMonth(new Date(), { weekStartsOn: 1 }),
+    key: 'selection',
+  })
   const [employees, setEmployees] = useState([]) // Array of selected employees
   const [projects, setProjects] = useState([])
   const [loading, isLoading] = useState(false) // Array of selected projects
@@ -45,7 +50,7 @@ const WeeklyReports = () => {
   // Helper function to generate date columns and map data
   // Map API data to table rows
   const generateStructuredData = () => {
-    if (!dateRange.firstDay || !dateRange.lastDay) return
+    if (!dateRange.startDate || !dateRange.endDate) return
 
     const columns = {
       col1: {
@@ -153,9 +158,9 @@ const WeeklyReports = () => {
 
   // Fetch data when filters change
   useEffect(() => {
-    if (dateRange.firstDay || employees.length || projects.length) {
-      const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
-      const endDate = new Date(dateRange.lastDay).toISOString().split('T')[0]
+    if (dateRange.startDate || dateRange.endDate || employees.length || projects.length) {
+      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
+      const endDate = new Date(dateRange.endDate).toISOString().split('T')[0]
 
       fetchTimesheetData({
         employee_id: employees.length ? mapIdsToArray(employees) : null,
@@ -173,7 +178,7 @@ const WeeklyReports = () => {
   // Regenerate structured data when data or date range changes
   useEffect(() => {
     generateStructuredData()
-  }, [data, dateRange])
+  }, [data])
 
   return (
     <>
@@ -184,7 +189,7 @@ const WeeklyReports = () => {
         <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <CRow>
             <CCol style={{ width: 'auto' }}>
-              <MonthCalender dateRange={dateRange} setDateRange={setDateRange} />
+              <DateRange dateRange={dateRange} setDateRange={setDateRange} />
             </CCol>
           </CRow>
         </CCol>
