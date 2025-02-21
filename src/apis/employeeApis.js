@@ -40,6 +40,21 @@ const editEmployee = async (payload) => {
   }
 }
 
+
+/**
+ * delete employee
+ * @param {string} payload.employee_id - The name of the project
+ * @returns {Promise} - Axios response promise
+ */
+const deleteEmployee = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/deleteEmployee`, payload)
+  } catch (error) {
+    console.error('Error deleting employee:', error.response?.data || error.message)
+    throw error;
+  }
+}
+
 /**
  * Fetch all projects with pagination, sorting, and filtering
  * @param {Object} payload - The parameters for fetching projects
@@ -63,4 +78,4 @@ const getAllEmployees = async (query) => {
   }
 }
 
-export { createEmployee, getAllEmployees,editEmployee }
+export { createEmployee, getAllEmployees,editEmployee,deleteEmployee }

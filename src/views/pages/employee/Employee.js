@@ -12,8 +12,36 @@ import {
   CFormInput,
   CForm,
 } from '@coreui/react'
-import { createEmployee, getAllEmployees, editEmployee } from '../../../apis/employeeApis'
+import {
+  createEmployee,
+  getAllEmployees,
+  editEmployee,
+  deleteEmployee,
+} from '../../../apis/employeeApis'
 import { useToast } from '../../../components/toaster'
+import CIcon from '@coreui/icons-react'
+import { cilTrash } from '@coreui/icons'
+
+const EditebleCell = ({ value, key, onEnter }) => {
+  const [cellVal, setCellVal] = useState(value)
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault() // Prevents form submission behavior
+      onEnter(cellVal) // Call the provided function with the value
+    }
+  }
+
+  return (
+    <CFormInput
+      className="form-control-table"
+      key={key}
+      value={cellVal}
+      onChange={(e) => setCellVal(e.target.value)}
+      onKeyDown={handleKeyDown} // Detect Enter key
+    ></CFormInput>
+  )
+}
 
 const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   const { showToast } = useToast()
@@ -80,8 +108,49 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   )
 }
 
+const DeleteEmployeeModal = ({ visible, setVisible, data,triggerDelete }) => {
+  const { name, employee_id } = data
+
+ 
+
+  return (
+    <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
+      <CForm
+        onSubmit={(e) => {
+          e.preventDefault()
+          triggerDelete(employee_id)
+        }}
+      >
+        <CModalHeader>
+          <CModalTitle>Delete Employee</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Are you sure you want to delete this employee?
+          <br />
+          <div style={{ fontWeight: 'bold' }}>
+            Name: {name} id: {employee_id}
+          </div>
+          <br />
+          If you delete, it will also delete all time entries with this.
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Close
+          </CButton>
+          <CButton color="danger" type='submit'>
+            Delete
+          </CButton>
+        </CModalFooter>
+      </CForm>
+    </CModal>
+  )
+}
+
 const Employee = () => {
   const [visible, setVisible] = useState(false) // For modal visibility
+  const [showDeleteModal, setShowDeleteModal] = useState(false) // For modal visibility
+  const [selectedEmployee, setSelectedEmployee] = useState({}) // For modal visibility
+
   const [data, setData] = useState([]) // Storing the structured data for columns
   const [loading, setLoading] = useState(false) // To track if data is being fetched
   const [totalCount, setTotalCount] = useState(0) // To track if data is being fetched
@@ -94,7 +163,7 @@ const Employee = () => {
   })
   const { showToast } = useToast()
 
-  const EditEmployeeName = async (data) => {
+  const editEmployeeName = async (data) => {
     try {
       const payload = {
         name: data.value,
@@ -110,6 +179,12 @@ const Employee = () => {
       showToast('error updating', { color: 'danger' })
     }
   }
+
+  const openDeleteModal = async (data) => {
+    setShowDeleteModal(true)
+    setSelectedEmployee({})
+    setSelectedEmployee(data)
+  }
   // Function to fetch all Employees with applied filters
   const structuredData = {
     columns: {
@@ -117,18 +192,37 @@ const Employee = () => {
         name: 'Employee ID', // Column name
         sortBy: 'employee_id', // Default sort by client name
         allowsorting: false,
+        width: '100px',
       },
       col2: {
         name: 'Employee Name', // Column name
         sortBy: 'name', // Default sort by name
         allowsorting: true, // Sorting allowed
-        allowEdit: true,
-        onEdit: EditEmployeeName,
+        customComponent: (row) => (
+          <EditebleCell
+            value={row.name}
+            key={'asds'}
+            onEnter={(val) => editEmployeeName({ value: val, data: row })}
+          />
+        ),
       },
       col3: {
         name: 'Employee Email', // Column name
         sortBy: 'email', // Default sort by client name
         allowsorting: false,
+      },
+      col4: {
+        name: 'Action', // Column name
+        sortBy: '', // Default sort by client name
+        width: '15px',
+        customComponent: (row) => (
+          <CIcon
+            icon={cilTrash}
+            size="s"
+            style={{ opacity: 0.5, cursor: 'pointer', marginLeft: 12 }}
+            onClick={() => openDeleteModal(row)}
+          />
+        ),
       },
     },
     setFilter: setFilter,
@@ -159,6 +253,17 @@ const Employee = () => {
     }
   }
 
+  const triggerDelete = async (id) => {
+    try {
+      await deleteEmployee({ employee_id:id })
+      showToast('Employee deleted successfully', { color: 'success' })
+      setShowDeleteModal(false)
+      fetchEmployees()
+    } catch (error) {
+      showToast('Error deleting', { color: 'danger' })
+    }
+  }
+
   // Trigger the initial fetch when the component mounts or when the filter changes
   useEffect(() => {
     fetchEmployees()
@@ -175,6 +280,13 @@ const Employee = () => {
             visible={visible}
             setVisible={setVisible}
             fetchEmployees={fetchEmployees}
+          />
+          <DeleteEmployeeModal
+            visible={showDeleteModal}
+            setVisible={setShowDeleteModal}
+            data={selectedEmployee}
+            showToast={showToast}
+            triggerDelete={triggerDelete}
           />
           <CButton color={'primary'} onClick={() => setVisible(true)}>
             Add new Employee

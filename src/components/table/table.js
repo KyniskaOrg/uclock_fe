@@ -25,27 +25,6 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
-const EditebleCell = ({ value, key, onEnter }) => {
-  const [cellVal, setCellVal] = useState(value)
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault() // Prevents form submission behavior
-      onEnter(cellVal) // Call the provided function with the value
-    }
-  }
-
-  return (
-    <CFormInput
-      className="form-control-table"
-      key={key}
-      value={cellVal}
-      onChange={(e) => setCellVal(e.target.value)}
-      onKeyDown={handleKeyDown} // Detect Enter key
-    ></CFormInput>
-  )
-}
-
 const CustomTable = ({
   loading,
   structuredData,
@@ -127,7 +106,11 @@ const CustomTable = ({
     Object.keys(columns).map((columnKey) => {
       const column = columns[columnKey]
       return (
-        <CTableHeaderCell key={columnKey} scope="col" style={headerStyle}>
+        <CTableHeaderCell
+          key={columnKey}
+          scope="col"
+          style={{ ...headerStyle, width: column.width }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             {column.name}
             {column.allowsorting && (
@@ -150,15 +133,7 @@ const CustomTable = ({
           const column = columns[columnKey]
           return (
             <CTableDataCell style={cellStyle} key={columnKey}>
-              {column.allowEdit ? (
-                <EditebleCell
-                  value={row[column.sortBy]}
-                  key={columnKey}
-                  onEnter={(val) => column.onEdit({ value: val, data: row })}
-                />
-              ) : (
-                row[column.sortBy]
-              )}
+              {column.customComponent ? column.customComponent(row) : row[column.sortBy]}
             </CTableDataCell>
           )
         })}
