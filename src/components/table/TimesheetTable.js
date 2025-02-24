@@ -413,7 +413,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
           setRowData={setRowData}
         />
       </CTableDataCell>
-      {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(
+      {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map(
         (day, index) => {
           const currentDate = new Date(dateRange.startDate)
           currentDate.setDate(new Date(dateRange.startDate).getDate() + index)
@@ -702,13 +702,13 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
         <CTableFoot>
           <CTableRow>
             <CTableDataCell style={headerStyle}>Total:</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.sunday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.monday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.tuesday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.wednesday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.thursday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.friday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.saturday}</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.sunday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{grandTotal}</CTableDataCell>
             <CTableDataCell style={headerStyle}></CTableDataCell>
           </CTableRow>
