@@ -61,7 +61,8 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
       setEmployeeName('')
       fetchEmployees()
     } catch (error) {
-      showToast('Failed to add employee', { color: 'danger' })
+      const errorMessage = error.response?.data?.message || 'Failed to add employee'
+      showToast(errorMessage, { color: 'danger' })
     }
   }
 
@@ -108,10 +109,8 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   )
 }
 
-const DeleteEmployeeModal = ({ visible, setVisible, data,triggerDelete }) => {
+const DeleteEmployeeModal = ({ visible, setVisible, data, triggerDelete }) => {
   const { name, employee_id } = data
-
- 
 
   return (
     <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
@@ -137,7 +136,7 @@ const DeleteEmployeeModal = ({ visible, setVisible, data,triggerDelete }) => {
           <CButton color="secondary" onClick={() => setVisible(false)}>
             Close
           </CButton>
-          <CButton color="danger" type='submit'>
+          <CButton color="danger" type="submit">
             Delete
           </CButton>
         </CModalFooter>
@@ -255,7 +254,7 @@ const Employee = () => {
 
   const triggerDelete = async (id) => {
     try {
-      await deleteEmployee({ employee_id:id })
+      await deleteEmployee({ employee_id: id })
       showToast('Employee deleted successfully', { color: 'success' })
       setShowDeleteModal(false)
       fetchEmployees()

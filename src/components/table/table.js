@@ -149,6 +149,12 @@ const CustomTable = ({
             <CFormInput
               placeholder="search"
               onChange={(e) => setsearchParam(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault(); // Prevent form submission (if inside a form)
+                  setFilter({ ...filter, searchText: searchParam });
+                }
+              }}
               value={searchParam}
               aria-describedby="button-addon2"
             />
@@ -194,7 +200,7 @@ const CustomTable = ({
                 disabled={filter.page === 1}
                 onClick={() => handlePageChange(filter.page - 1)}
               >
-                Previous
+                {'<'}
               </CPaginationItem>
 
               {renderPaginationItems()}
@@ -203,16 +209,21 @@ const CustomTable = ({
                 disabled={filter.page === totalPages}
                 onClick={() => handlePageChange(filter.page + 1)}
               >
-                Next
+                {'>'}
               </CPaginationItem>
             </CPagination>
           </CCol>
+          Total : {structuredData.totalLength}
           <CCol className="flex-row-end">
             <CDropdown>
               <CDropdownToggle color="primary">Page limit</CDropdownToggle>
               <CDropdownMenu>
                 {[10, 20, 50, 100, 200].map((limit) => (
-                  <CDropdownItem key={limit} onClick={() => handleLimitChange(limit)}>
+                  <CDropdownItem
+                    key={limit}
+                    onClick={() => handleLimitChange(limit)}
+                    active={limit == filter.limit}
+                  >
                     {limit}
                   </CDropdownItem>
                 ))}

@@ -295,7 +295,7 @@ const DeleteRowModal = ({ visible, setVisible, confirmDeleteTimesheetRecords }) 
         <CModalBody>
           Are you sure you want to delete this row?
           <br />
-          If you delete, it will also delete all time entries with this project/task for this week.
+          If you delete, it will also delete all time entries with this project/task.
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>

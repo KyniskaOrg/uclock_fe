@@ -21,7 +21,7 @@ const DefaultLayout = ({ children }) => {
         <AppHeader />
         <div className="body flex-grow-1">
           <div className="body flex-grow-1">
-            <CContainer className="px-4" lg>
+          <CContainer className="px-4" style={{width:"auto", maxWidth:"fit-content", minWidth:"100%"}}>
               {children}
             </CContainer>
           </div>

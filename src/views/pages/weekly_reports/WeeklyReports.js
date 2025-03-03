@@ -127,8 +127,8 @@ const WeeklyReports = () => {
   const DownloadExcel = async () => {
     try {
       isLoading(true)
-      const startDate = new Date(dateRange.firstDay).toISOString().split('T')[0]
-      const endDate = new Date(dateRange.lastDay).toISOString().split('T')[0]
+      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
+      const endDate = new Date(dateRange.endDate).toISOString().split('T')[0]
 
       let data = await downloadTimesheetCsv({
         employee_id: employees.length ? mapIdsToArray(employees) : null,
@@ -139,9 +139,23 @@ const WeeklyReports = () => {
         limit: filter.limit,
         detailed: false,
       })
+      // if (data && data.viewLink) {
+       
+      //   window.open(data.viewLink, '_blank')
+      //   isLoading(false)
+      // } else {
+      //   console.error('No file found in response')
+      // }
 
-      if (data && data.viewLink) {
-        window.open(data.viewLink, '_blank')
+      if (data && data.downloadLink) {
+        // Create an anchor element to trigger the download
+        const a = document.createElement('a')
+        a.href = data.downloadLink  // The link for the CSV file
+        a.download = 'timesheet.csv' // Set the filename you want for the download
+        document.body.appendChild(a) // Append the link to the DOM (it needs to be in the document for it to work)
+        a.click() // Simulate a click on the link to start the download
+        document.body.removeChild(a) // Remove the link after the click
+  
         isLoading(false)
       } else {
         console.error('No file found in response')
