@@ -56,17 +56,17 @@ const WeeklyReports = () => {
       col1: {
         name: 'Project Name',
         sortBy: 'projectName',
-        allowsorting: false,
+        allowsorting: true,
       },
       col2: {
         name: 'Employee Name',
         sortBy: 'name',
-        allowsorting: false,
+        allowsorting: true,
       },
       col3: {
         name: 'Date',
         sortBy: 'date',
-        allowsorting: false,
+        allowsorting: true,
       },
       col4: {
         name: 'Time(h)',
@@ -183,6 +183,8 @@ const WeeklyReports = () => {
         end_date: endDate,
         page: filter.page,
         limit: filter.limit,
+        sortBy:filter.sortBy,
+        sortOrder:filter.sortOrder
       })
     } else {
       setData([])
