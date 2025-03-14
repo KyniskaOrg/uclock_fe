@@ -135,9 +135,9 @@ const WeeklyReports = () => {
         project_id: projects.length ? mapIdsToArray(projects) : null,
         start_date: startDate,
         end_date: endDate,
-        page: filter.page,
-        limit: filter.limit,
-        detailed: false,
+        // page: filter.page,
+        // limit: filter.limit,
+        // detailed: false,
       })
       // if (data && data.viewLink) {
        
