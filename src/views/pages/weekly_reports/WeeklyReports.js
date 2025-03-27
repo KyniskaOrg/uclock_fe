@@ -8,6 +8,7 @@ import ProjectDropdown from '../../../components/ProjectDropDown'
 import { getAllTimesheetRecords, downloadTimesheetCsv } from '../../../apis/timesheetApis'
 import { cilPrint } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import { sumHoursWorked } from '../../../utils/utils'
 
 const WeeklyReports = () => {
   const [dateRange, setDateRange] = useState({
@@ -26,7 +27,7 @@ const WeeklyReports = () => {
     sortBy: null,
     sortOrder: null,
     page: 1,
-    limit: 30,
+    limit: 35,
   })
   const [data, setData] = useState([]) // Data from API
   const [structuredData, setStructuredData] = useState({
@@ -195,7 +196,7 @@ const WeeklyReports = () => {
   useEffect(() => {
     generateStructuredData()
   }, [data])
-
+ 
   return (
     <>
       <CRow className="align-items-center mb-3">
@@ -214,6 +215,7 @@ const WeeklyReports = () => {
         structuredData={structuredData}
         loading={false}
         showFooter={true}
+        showTotal={employees.length===1&&employees[0].value?`${"Total Hours: " + sumHoursWorked(data)}`:null}
         customHeader={() => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>

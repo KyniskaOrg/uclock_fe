@@ -30,6 +30,7 @@ const CustomTable = ({
   structuredData,
   customHeader: CustomHeader,
   showFooter = true,
+  showTotal = false,
 }) => {
   const { setFilter, filter, data, searchableTable, columns, totalLength } = structuredData
   const [searchParam, setsearchParam] = useState('')
@@ -214,11 +215,12 @@ const CustomTable = ({
             </CPagination>
           </CCol>
           Total : {structuredData.totalLength}
+          {showTotal && <CCol style={{fontWeight: "bold", textDecoration: "underline"}}>{showTotal}</CCol>}
           <CCol className="flex-row-end">
             <CDropdown>
               <CDropdownToggle color="primary">Page limit</CDropdownToggle>
               <CDropdownMenu>
-                {[10, 20, 50, 100, 200].map((limit) => (
+                {[10, 20, 35, 50, 100, 200].map((limit) => (
                   <CDropdownItem
                     key={limit}
                     onClick={() => handleLimitChange(limit)}
