@@ -64,4 +64,19 @@ function calculateRowTotal(row) {
   return minutesToTime(totalMinutes);
 }
 
-export { calculateTotaltime,calculateRowTotal }
+
+function sumHoursWorked(timesheets) {
+  let totalMinutes = 0;
+
+  timesheets.forEach(({ hours_worked }) => {
+      const [hours, minutes] = hours_worked.split(':').map(Number);
+      totalMinutes += hours * 60 + minutes;
+  });
+
+  const totalHours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  return `${totalHours}:${remainingMinutes.toString().padStart(2, '0')}`;
+}
+
+export { calculateTotaltime,calculateRowTotal,sumHoursWorked }
