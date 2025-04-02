@@ -4,23 +4,32 @@ import CIcon from '@coreui/icons-react'
 import { DateRangePicker, createStaticRanges } from 'react-date-range'
 import { useState, useRef, useEffect } from 'react'
 import { cilCalendar } from '@coreui/icons'
+import { enGB } from "date-fns/locale";
 
 const getCurrentWeek = () => {
-  const today = new Date()
-  const startOfWeek = new Date(today)
-  startOfWeek.setDate(today.getDate() - today.getDay())
-  startOfWeek.setHours(0, 0, 0, 0)
+  const today = new Date();
+  
+  // Calculate difference from Monday (1 = Monday, 0 = Sunday, etc.)
+  const dayOfWeek = today.getDay(); 
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust if today is Sunday
+  
+  // Set start of week to Monday
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() + diffToMonday);
+  startOfWeek.setHours(0, 0, 0, 0);
 
-  const endOfWeek = new Date(startOfWeek)
-  endOfWeek.setDate(startOfWeek.getDate() + 6)
-  endOfWeek.setHours(23, 59, 59, 999)
+  // Set end of week (Sunday)
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
 
   return {
     startDate: startOfWeek,
     endDate: endOfWeek,
     key: 'selection',
-  }
-}
+  };
+};
+
 
 const DateRange = ({ dateRange, setDateRange }) => {
   const [open, setOpen] = useState(false)
@@ -119,6 +128,7 @@ const DateRange = ({ dateRange, setDateRange }) => {
               staticRanges={customStaticRanges}
               inputRanges={[]}
               onChange={handleSelect}
+              locale={enGB}
             />
           </div>
         )}

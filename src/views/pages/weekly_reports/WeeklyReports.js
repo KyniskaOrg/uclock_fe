@@ -177,7 +177,7 @@ const WeeklyReports = () => {
       const d = new Date(dateRange.startDate)
       const startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       const endDate = new Date(dateRange.endDate).toISOString().split('T')[0]
-      console.log(startDate, endDate)
+     // console.log(startDate, endDate)
       fetchTimesheetData({
         employee_id: employees.length ? mapIdsToArray(employees) : null,
         project_id: projects.length ? mapIdsToArray(projects) : null,

@@ -29,6 +29,8 @@ import { getAllProjects } from '../../apis/projectApis'
 import { calculateTotaltime, calculateRowTotal } from '../../utils/utils'
 import { CFormInput, CInputGroup, CInputGroupText } from '@coreui/react'
 
+// goatta change it to the one from employee portal
+
 const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -384,7 +386,7 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
 
   useEffect(() => {
     if (dateRange.startDate && employeeId && project.value) {
-      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
+      const startDate = dateRange.startDate.toLocaleDateString('fr-CA')
       fetchTimesheetData({
         employee_id: employeeId,
         project_id: project.value,
@@ -413,12 +415,11 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
           setRowData={setRowData}
         />
       </CTableDataCell>
-      {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map(
+      {[ 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ].map(
         (day, index) => {
           const currentDate = new Date(dateRange.startDate)
           currentDate.setDate(new Date(dateRange.startDate).getDate() + index)
-          const dateStr = currentDate.toISOString().split('T')[0]
-
+          const dateStr = currentDate.toLocaleDateString('fr-CA')
           return (
             <CTableDataCell style={cellStyle} key={day + employeeId + project.value}>
               <TimeInput
@@ -635,7 +636,7 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
 
   useEffect(() => {
     if (dateRange.startDate && employeeId) {
-      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
+      const startDate = dateRange.startDate.toLocaleDateString('fr-CA')
       fetchTimesheetData({
         employee_id: employeeId,
         project_id: null,
@@ -702,13 +703,13 @@ const TimesheetTable = ({ employeeId, dateRange }) => {
         <CTableFoot>
           <CTableRow>
             <CTableDataCell style={headerStyle}>Total:</CTableDataCell>
-            <CTableDataCell style={headerStyle}>{totals.sunday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.monday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.tuesday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.wednesday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.thursday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.friday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{totals.saturday}</CTableDataCell>
+            <CTableDataCell style={headerStyle}>{totals.sunday}</CTableDataCell>
             <CTableDataCell style={headerStyle}>{grandTotal}</CTableDataCell>
             <CTableDataCell style={headerStyle}></CTableDataCell>
           </CTableRow>
