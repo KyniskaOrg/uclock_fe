@@ -214,8 +214,9 @@ const CustomTable = ({
               </CPaginationItem>
             </CPagination>
           </CCol>
-          Total : {structuredData.totalLength}
-          {showTotal && <CCol style={{fontWeight: "bold", textDecoration: "underline"}}>{showTotal}</CCol>}
+          {/* moved to page top */}
+          {/* Total : {structuredData.totalLength}
+          {showTotal && <CCol style={{fontWeight: "bold", textDecoration: "underline"}}>{showTotal}</CCol>} */}
           <CCol className="flex-row-end">
             <CDropdown>
               <CDropdownToggle color="primary">Page limit</CDropdownToggle>

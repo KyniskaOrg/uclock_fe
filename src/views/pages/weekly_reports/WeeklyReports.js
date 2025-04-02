@@ -141,7 +141,7 @@ const WeeklyReports = () => {
         // detailed: false,
       })
       // if (data && data.viewLink) {
-       
+
       //   window.open(data.viewLink, '_blank')
       //   isLoading(false)
       // } else {
@@ -151,12 +151,12 @@ const WeeklyReports = () => {
       if (data && data.downloadLink) {
         // Create an anchor element to trigger the download
         const a = document.createElement('a')
-        a.href = data.downloadLink  // The link for the CSV file
+        a.href = data.downloadLink // The link for the CSV file
         a.download = 'timesheet.csv' // Set the filename you want for the download
         document.body.appendChild(a) // Append the link to the DOM (it needs to be in the document for it to work)
         a.click() // Simulate a click on the link to start the download
         document.body.removeChild(a) // Remove the link after the click
-  
+
         isLoading(false)
       } else {
         console.error('No file found in response')
@@ -174,9 +174,10 @@ const WeeklyReports = () => {
   // Fetch data when filters change
   useEffect(() => {
     if (dateRange.startDate || dateRange.endDate || employees.length || projects.length) {
-      const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
+      const d = new Date(dateRange.startDate)
+      const startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       const endDate = new Date(dateRange.endDate).toISOString().split('T')[0]
-
+      console.log(startDate, endDate)
       fetchTimesheetData({
         employee_id: employees.length ? mapIdsToArray(employees) : null,
         project_id: projects.length ? mapIdsToArray(projects) : null,
@@ -184,8 +185,8 @@ const WeeklyReports = () => {
         end_date: endDate,
         page: filter.page,
         limit: filter.limit,
-        sortBy:filter.sortBy,
-        sortOrder:filter.sortOrder
+        sortBy: filter.sortBy,
+        sortOrder: filter.sortOrder,
       })
     } else {
       setData([])
@@ -196,7 +197,7 @@ const WeeklyReports = () => {
   useEffect(() => {
     generateStructuredData()
   }, [data])
- 
+
   return (
     <>
       <CRow className="align-items-center mb-3">
@@ -215,7 +216,11 @@ const WeeklyReports = () => {
         structuredData={structuredData}
         loading={false}
         showFooter={true}
-        showTotal={employees.length===1&&employees[0].value?`${"Total Hours: " + sumHoursWorked(data)}`:null}
+        showTotal={
+          employees.length === 1 && employees[0].value
+            ? `${'Total Hours: ' + sumHoursWorked(data)}`
+            : null
+        }
         customHeader={() => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
@@ -242,6 +247,13 @@ const WeeklyReports = () => {
                     </CCol>
                   </CRow>
                 </CCol>
+                Total : {structuredData.totalLength}
+                {((employees.length === 1 && employees[0].value) ||
+                  (projects.length === 1 && projects[0].value)) && (
+                  <CCol style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
+                    Total Hours: {sumHoursWorked(data)}
+                  </CCol>
+                )}
                 <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <CButton color="primary" disabled={!data.length} onClick={() => DownloadExcel()}>
                     {loading ? (
