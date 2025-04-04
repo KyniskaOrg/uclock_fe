@@ -216,11 +216,11 @@ const WeeklyReports = () => {
         structuredData={structuredData}
         loading={false}
         showFooter={true}
-        showTotal={
-          employees.length === 1 && employees[0].value
-            ? `${'Total Hours: ' + sumHoursWorked(data)}`
-            : null
-        }
+        // showTotal={
+        //   employees.length === 1 && employees[0].value
+        //     ? `${'Total Hours: ' + sumHoursWorked(data)}`
+        //     : null
+        // }
         customHeader={() => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
@@ -248,8 +248,10 @@ const WeeklyReports = () => {
                   </CRow>
                 </CCol>
                 Total : {structuredData.totalLength}
-                {((employees.length === 1 && employees[0].value) ||
-                  (projects.length === 1 && projects[0].value)) && (
+                {
+                // ((employees.length === 1 && employees[0].value) ||
+                //   (projects.length === 1 && projects[0].value)) && 
+                  (
                   <CCol style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
                     Total Hours: {sumHoursWorked(data)}
                   </CCol>

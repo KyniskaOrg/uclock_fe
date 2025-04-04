@@ -30,7 +30,7 @@ const CustomTable = ({
   structuredData,
   customHeader: CustomHeader,
   showFooter = true,
-  showTotal = false,
+  //showTotal = false,
 }) => {
   const { setFilter, filter, data, searchableTable, columns, totalLength } = structuredData
   const [searchParam, setsearchParam] = useState('')
