@@ -11,6 +11,7 @@ import {
   CModalTitle,
   CFormInput,
   CForm,
+  CFormCheck,
 } from '@coreui/react'
 import {
   createEmployee,
@@ -110,27 +111,39 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
 }
 
 const DeleteEmployeeModal = ({ visible, setVisible, data, triggerDelete }) => {
-  const { name, employee_id } = data
+  const { name, employee_id, employee_ids } = data
 
   return (
     <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
       <CForm
         onSubmit={(e) => {
           e.preventDefault()
-          triggerDelete(employee_id)
+          triggerDelete(employee_ids || employee_id)
         }}
       >
         <CModalHeader>
           <CModalTitle>Delete Employee</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          Are you sure you want to delete this employee?
-          <br />
-          <div style={{ fontWeight: 'bold' }}>
-            Name: {name} id: {employee_id}
-          </div>
-          <br />
-          If you delete, it will also delete all time entries with this.
+          {employee_ids ? (
+            <>
+              Are you sure you want to delete the selected employees?
+              <br />
+              <div style={{ fontWeight: 'bold' }}>IDs: {employee_ids.join(', ')}</div>
+              <br />
+              If you delete, it will also delete all time entries with these.
+            </>
+          ) : (
+            <>
+              Are you sure you want to delete this employee?
+              <br />
+              <div style={{ fontWeight: 'bold' }}>
+                Name: {name} id: {employee_id}
+              </div>
+              <br />
+              If you delete, it will also delete all time entries with this.
+            </>
+          )}
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>
@@ -149,6 +162,7 @@ const Employee = () => {
   const [visible, setVisible] = useState(false) // For modal visibility
   const [showDeleteModal, setShowDeleteModal] = useState(false) // For modal visibility
   const [selectedEmployee, setSelectedEmployee] = useState({}) // For modal visibility
+  const [selectedEmployees, setSelectedEmployees] = useState([]) // For selected employee objects
 
   const [data, setData] = useState([]) // Storing the structured data for columns
   const [loading, setLoading] = useState(false) // To track if data is being fetched
@@ -179,21 +193,73 @@ const Employee = () => {
     }
   }
 
+  const handleSelectEmployee = (employee, isSelected) => {
+    setSelectedEmployees((prev) =>
+      isSelected
+        ? [...prev, employee]
+        : prev.filter((selected) => selected.employee_id !== employee.employee_id),
+    )
+  }
+
+  const removeSelectedEmployee = (employeeId) => {
+    setSelectedEmployees((prev) => prev.filter((employee) => employee.employee_id !== employeeId))
+  }
+
   const openDeleteModal = async (data) => {
     setShowDeleteModal(true)
-    setSelectedEmployee({})
     setSelectedEmployee(data)
   }
-  // Function to fetch all Employees with applied filters
+
+  const openDeleteSelectedModal = () => {
+    setShowDeleteModal(true)
+    setSelectedEmployee({ employee_ids: selectedEmployees.map((emp) => emp.employee_id) })
+  }
+
+  const triggerDelete = async (id) => {
+    try {
+      await deleteEmployee({ employee_ids: [id] })
+      showToast('Employee deleted successfully', { color: 'success' })
+      setShowDeleteModal(false)
+      fetchEmployees()
+    } catch (error) {
+      showToast('Error deleting', { color: 'danger' })
+    }
+  }
+
+  const triggerDeleteSelected = async () => {
+    try {
+      await deleteEmployee({ employee_ids: selectedEmployees.map((emp) => emp.employee_id) })
+      showToast('Selected employees deleted successfully', { color: 'success' })
+      setShowDeleteModal(false)
+      setSelectedEmployees([]) // Clear selected employees
+      fetchEmployees()
+    } catch (error) {
+      showToast('Error deleting selected employees', { color: 'danger' })
+    }
+  }
+
   const structuredData = {
     columns: {
       col1: {
+        name: 'Select', // Column name
+        sortBy: 'employee_id', // Default sort by client name
+        allowsorting: false,
+        width: '20px',
+        customComponent: (row) => (
+          <CFormCheck
+            id={`select-${row.employee_id}`}
+            checked={selectedEmployees.some((emp) => emp.employee_id === row.employee_id)}
+            onChange={(e) => handleSelectEmployee(row, e.target.checked)}
+          />
+        ),
+      },
+      col2: {
         name: 'Employee ID', // Column name
         sortBy: 'employee_id', // Default sort by client name
         allowsorting: false,
         width: '100px',
       },
-      col2: {
+      col3: {
         name: 'Employee Name', // Column name
         sortBy: 'name', // Default sort by name
         allowsorting: true, // Sorting allowed
@@ -205,12 +271,12 @@ const Employee = () => {
           />
         ),
       },
-      col3: {
+      col4: {
         name: 'Employee Email', // Column name
         sortBy: 'email', // Default sort by client name
         allowsorting: false,
       },
-      col4: {
+      col5: {
         name: 'Action', // Column name
         sortBy: '', // Default sort by client name
         width: '15px',
@@ -230,6 +296,7 @@ const Employee = () => {
     totalLength: totalCount,
     data: data,
   }
+
   const fetchEmployees = async () => {
     setLoading(true)
     try {
@@ -243,7 +310,6 @@ const Employee = () => {
         })
       })
       setTotalCount(response.totalEmployees)
-      // Add more columns as needed
       setData(data)
     } catch (error) {
       console.error('Error fetching Employees:', error)
@@ -252,18 +318,6 @@ const Employee = () => {
     }
   }
 
-  const triggerDelete = async (id) => {
-    try {
-      await deleteEmployee({ employee_id: id })
-      showToast('Employee deleted successfully', { color: 'success' })
-      setShowDeleteModal(false)
-      fetchEmployees()
-    } catch (error) {
-      showToast('Error deleting', { color: 'danger' })
-    }
-  }
-
-  // Trigger the initial fetch when the component mounts or when the filter changes
   useEffect(() => {
     fetchEmployees()
   }, [filter]) // Re-fetch when the filter changes
@@ -285,14 +339,61 @@ const Employee = () => {
             setVisible={setShowDeleteModal}
             data={selectedEmployee}
             showToast={showToast}
-            triggerDelete={triggerDelete}
+            triggerDelete={selectedEmployees.length > 1 ? triggerDeleteSelected : triggerDelete}
           />
+
           <CButton color={'primary'} onClick={() => setVisible(true)}>
             Add new Employee
           </CButton>
+
+          {selectedEmployees.length > 0 && (
+            <CButton color={'danger'} onClick={openDeleteSelectedModal} style={{ marginRight: 10 }}>
+              Delete Selected
+            </CButton>
+          )}
         </CCol>
       </CRow>
-      <CustomTable structuredData={structuredData} loading={loading} />
+      <CustomTable structuredData={structuredData} loading={loading} slectableTable={false} />
+      <CRow className="col-md-12">
+        {/* Selected Employees Section */}
+        {selectedEmployees.length > 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <h5>Selected Employees:</h5>
+            <div
+              style={{
+                // Set a fixed height for the container
+                overflowY: 'auto', // Enable vertical scrolling
+              }}
+            >
+              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', padding: 0, margin: 0 }}>
+                {selectedEmployees.map((employee) => (
+                  <li
+                    key={employee.employee_id}
+                    style={{
+                      listStyle: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: '#f8f9fa',
+                      padding: '5px 10px',
+                      borderRadius: '5px',
+                      border: '1px solid #ddd',
+                    }}
+                  >
+                    <span style={{ marginRight: '10px', fontSize: 'small' }}>{employee.name}</span>
+                    <div
+                      color="danger"
+                      size="sm"
+                      onClick={() => removeSelectedEmployee(employee.employee_id)}
+                    >
+                      ✕
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </CRow>
     </>
   )
 }
