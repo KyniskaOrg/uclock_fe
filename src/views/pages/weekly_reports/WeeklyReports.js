@@ -177,7 +177,7 @@ const WeeklyReports = () => {
       const d = new Date(dateRange.startDate)
       const startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       const endDate = new Date(dateRange.endDate).toISOString().split('T')[0]
-     // console.log(startDate, endDate)
+      // console.log(startDate, endDate)
       fetchTimesheetData({
         employee_id: employees.length ? mapIdsToArray(employees) : null,
         project_id: projects.length ? mapIdsToArray(projects) : null,
@@ -216,11 +216,7 @@ const WeeklyReports = () => {
         structuredData={structuredData}
         loading={false}
         showFooter={true}
-        // showTotal={
-        //   employees.length === 1 && employees[0].value
-        //     ? `${'Total Hours: ' + sumHoursWorked(data)}`
-        //     : null
-        // }
+        showTotal={false}
         customHeader={() => {
           return (
             <CCardHeader style={{ background: '#e4eaee', borderRadius: 0 }}>
@@ -249,13 +245,12 @@ const WeeklyReports = () => {
                 </CCol>
                 Total : {structuredData.totalLength}
                 {
-                // ((employees.length === 1 && employees[0].value) ||
-                //   (projects.length === 1 && projects[0].value)) && 
-                  (
+                  // ((employees.length === 1 && employees[0].value) ||
+                  //   (projects.length === 1 && projects[0].value)) &&
                   <CCol style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
                     Total Hours: {sumHoursWorked(data)}
                   </CCol>
-                )}
+                }
                 <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <CButton color="primary" disabled={!data.length} onClick={() => DownloadExcel()}>
                     {loading ? (
