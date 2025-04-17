@@ -30,7 +30,7 @@ const CustomTable = ({
   structuredData,
   customHeader: CustomHeader,
   showFooter = true,
-  //showTotal = false,
+  showTotal = true,
 }) => {
   const { setFilter, filter, data, searchableTable, columns, totalLength } = structuredData
   const [searchParam, setsearchParam] = useState('')
@@ -151,9 +151,9 @@ const CustomTable = ({
               placeholder="search"
               onChange={(e) => setsearchParam(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault(); // Prevent form submission (if inside a form)
-                  setFilter({ ...filter, searchText: searchParam });
+                if (e.key === 'Enter') {
+                  e.preventDefault() // Prevent form submission (if inside a form)
+                  setFilter({ ...filter, searchText: searchParam })
                 }
               }}
               value={searchParam}
@@ -215,8 +215,8 @@ const CustomTable = ({
             </CPagination>
           </CCol>
           {/* moved to page top */}
-          {/* Total : {structuredData.totalLength}
-          {showTotal && <CCol style={{fontWeight: "bold", textDecoration: "underline"}}>{showTotal}</CCol>} */}
+
+          {showTotal && <>Total : {structuredData.totalLength}</>}
           <CCol className="flex-row-end">
             <CDropdown>
               <CDropdownToggle color="primary">Page limit</CDropdownToggle>
