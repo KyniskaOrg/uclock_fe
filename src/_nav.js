@@ -31,6 +31,11 @@ const _nav = [
         name: 'Detailed Reports',
         to: '/reports',
       },
+      {
+        component: CNavItem,
+        name: 'Month Reports',
+        to: '/monthreports',
+      },
     ],
   },
   {
