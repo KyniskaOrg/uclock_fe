@@ -113,7 +113,7 @@ const CustomTable = ({
           style={{ ...headerStyle, width: column.width }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            {column.name}
+            {column.selectAll ? column.selectAll(data) : column.name}
             {column.allowsorting && (
               <CIcon
                 icon={cilSwapVertical}

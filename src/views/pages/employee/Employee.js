@@ -193,6 +193,16 @@ const Employee = () => {
     }
   }
 
+  const handleSelectAllEmployees = (isSelected, employees) => {
+    if (isSelected) {
+      // Add all employees to the selected list
+      setSelectedEmployees(employees)
+    } else {
+      // Clear the selected employees list
+      setSelectedEmployees([])
+    }
+  }
+
   const handleSelectEmployee = (employee, isSelected) => {
     setSelectedEmployees((prev) =>
       isSelected
@@ -248,8 +258,17 @@ const Employee = () => {
         customComponent: (row) => (
           <CFormCheck
             id={`select-${row.employee_id}`}
+            style={{ cursor: 'pointer' }}
             checked={selectedEmployees.some((emp) => emp.employee_id === row.employee_id)}
             onChange={(e) => handleSelectEmployee(row, e.target.checked)}
+          />
+        ),
+        selectAll: (data) => (
+          <CFormCheck
+            id="select-all_emp"
+            style={{ cursor: 'pointer' }}
+            checked={selectedEmployees.length === data.length && data.length > 0}
+            onChange={(e) => handleSelectAllEmployees(e.target.checked, data)}
           />
         ),
       },
@@ -383,6 +402,7 @@ const Employee = () => {
                     <div
                       color="danger"
                       size="sm"
+                      style={{ cursor: 'pointer' }}
                       onClick={() => removeSelectedEmployee(employee.employee_id)}
                     >
                       ✕
