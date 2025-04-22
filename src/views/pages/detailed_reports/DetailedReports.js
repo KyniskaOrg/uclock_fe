@@ -219,7 +219,7 @@ const WeeklyReports = () => {
                         placeholder="Employee"
                       />
                     </CCol>
-                    <CCol style={{ width: 'auto' }}>
+                    {/* <CCol style={{ width: 'auto' }}>
                       <ProjectDropdown
                         isMulti={true}
                         setValue={setProjects} // Pass setProjects for multi-select
@@ -227,7 +227,7 @@ const WeeklyReports = () => {
                         customStyles={customStyles}
                         placeholder="Projects"
                       />
-                    </CCol>
+                    </CCol> */}
                   </CRow>
                 </CCol>
                 <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
