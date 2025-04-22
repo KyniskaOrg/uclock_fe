@@ -88,6 +88,16 @@ const App = () => {
               </DefaultLayout>
             }
           />
+           <Route
+            exactS
+            path="/monthreports"
+            name="Month Reports"
+            element={
+              <DefaultLayout>
+                <DetaildReports />
+              </DefaultLayout>
+            }
+          />
           <Route
             exact
             path="/projects"

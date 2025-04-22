@@ -64,6 +64,26 @@ const getAllTimesheetRecords = async (params) => {
 }
 
 /**
+ * Get timesheet record
+ * @param {Object} params - Query parameters
+ * @param {number} params.employee_id - The ID of the employee
+ * @param {number} params.project_id - The ID of the project
+ * @param {string} params.start_date - The start date (YYYY-MM-DD)
+ * @returns {Promise} - Axios response promise
+ */
+const getMonthTotalHours = async (params) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/getMonthTotalHours`, {
+      params, // Axios automatically appends query parameters
+    })
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error getting month total hours:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+/**
  * Delete timesheet records
  * @param {Array<number>} timesheetIds - Array of timesheet IDs to delete
  * @returns {Promise} - Axios response promise
@@ -100,4 +120,4 @@ const downloadTimesheetCsv = async (params) => {
   }
 }
 
-export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv,getAllTimesheetRecords }
+export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv,getAllTimesheetRecords,getMonthTotalHours }
