@@ -4,8 +4,9 @@ import CustomTable from '../../../components/table/table'
 import DateRange from '../../../components/dateRange/DateRangePicker'
 import { endOfMonth, startOfMonth } from 'date-fns'
 import EmployeeDropdown from '../../../components/EmployeeDropDown'
-import ProjectDropdown from '../../../components/ProjectDropDown'
+// import ProjectDropdown from '../../../components/ProjectDropDown'
 import { getMonthTotalHours } from '../../../apis/timesheetApis'
+import { getEmployeesWithNoEntry } from '../../../apis/employeeApis'
 import { cilPrint } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
@@ -17,6 +18,7 @@ const WeeklyReports = () => {
   })
   const [employees, setEmployees] = useState([]) // Array of selected employees
   const [projects, setProjects] = useState([])
+  const [isSubmitted, setIsSubmitted] = useState(true) // Array of selected projects
   const [loading, isLoading] = useState(false) // Array of selected projects
   const [totalCount, setTotalCount] = useState(0) // To track if data is being fetched
 
@@ -55,24 +57,19 @@ const WeeklyReports = () => {
 
     const columns = {
       col1: {
-        name: 'employee_id',
-        sortBy: 'name',
-        allowsorting: true,
-      },
-      col2: {
         name: 'Employee Name',
         sortBy: 'name',
         allowsorting: true,
       },
-      col3: {
+      col2: {
         name: 'Time(h)',
         sortBy: 'hours_worked',
-        allowsorting: false,
+        allowsorting: true,
       },
-      col4: {
+      col3: {
         name: 'Time(Decimal)',
         sortBy: 'hours_worked_decimal',
-        allowsorting: false,
+        allowsorting: true,
       },
     }
 
@@ -85,10 +82,10 @@ const WeeklyReports = () => {
     let rowData = []
     data.forEach((entry) => {
       rowData.push({
-        empID: entry.employee_id,
-        name: entry.Employee.name,
-        hours_worked: entry.hours_worked,
-        hours_worked_decimal: timeToDecimal(entry.hours_worked),
+        // empID: entry.employee_id,
+        name: isSubmitted ? entry.Employee.name : entry.name,
+        hours_worked: entry?.hours_worked || '0:00',
+        hours_worked_decimal: timeToDecimal(entry?.hours_worked || '0:0'),
       })
     })
 
@@ -105,7 +102,9 @@ const WeeklyReports = () => {
   // Fetch timesheet data based on selected filters
   const fetchMonthTotalHours = async (query) => {
     try {
-      const fetchedData = await getMonthTotalHours(query)
+      const fetchedData = isSubmitted
+        ? await getMonthTotalHours(query)
+        : await getEmployeesWithNoEntry(query)
       setData(fetchedData.monthTime)
       setTotalCount(fetchedData.totalRecords)
     } catch (error) {
@@ -179,7 +178,7 @@ const WeeklyReports = () => {
     } else {
       setData([])
     }
-  }, [employees, dateRange, projects, filter])
+  }, [employees, dateRange, projects, filter, isSubmitted])
 
   // Regenerate structured data when data or date range changes
   useEffect(() => {
@@ -219,19 +218,15 @@ const WeeklyReports = () => {
                         placeholder="Employee"
                       />
                     </CCol>
-                    {/* <CCol style={{ width: 'auto' }}>
-                      <ProjectDropdown
-                        isMulti={true}
-                        setValue={setProjects} // Pass setProjects for multi-select
-                        value={projects} // Pass projects array
-                        customStyles={customStyles}
-                        placeholder="Projects"
-                      />
-                    </CCol> */}
+                    <CCol style={{ width: 'auto' }}>
+                      <CButton color="primary" onClick={() => setIsSubmitted(!isSubmitted)}>
+                        {isSubmitted ? 'Submitted' : 'Not-Submitted'}
+                      </CButton>
+                    </CCol>
                   </CRow>
                 </CCol>
                 <CCol style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <CButton color="primary" disabled={!data.length} onClick={() => DownloadExcel()}>
+                  {/* <CButton color="primary" disabled={!data.length} onClick={() => DownloadExcel()}>
                     {loading ? (
                       'Preparing...'
                     ) : (
@@ -246,7 +241,7 @@ const WeeklyReports = () => {
                         }}
                       />
                     )}
-                  </CButton>
+                  </CButton> */}
                 </CCol>
               </CRow>
             </CCardHeader>
