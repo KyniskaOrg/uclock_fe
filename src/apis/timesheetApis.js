@@ -1,5 +1,5 @@
 import axios from 'axios'
-const backendUrl=import.meta.env.VITE_APP_NODE_API
+const backendUrl = import.meta.env.VITE_APP_NODE_API
 
 const BASE_URL = `${backendUrl}/api/timesheet`
 
@@ -42,7 +42,6 @@ const getTimesheetRecord = async (params) => {
   }
 }
 
-
 /**
  * Get timesheet record
  * @param {Object} params - Query parameters
@@ -69,6 +68,7 @@ const getAllTimesheetRecords = async (params) => {
  * @param {number} params.employee_id - The ID of the employee
  * @param {number} params.project_id - The ID of the project
  * @param {string} params.start_date - The start date (YYYY-MM-DD)
+ * @param {string} params.end_date - The end date (YYYY-MM-DD)
  * @returns {Promise} - Axios response promise
  */
 const getMonthTotalHours = async (params) => {

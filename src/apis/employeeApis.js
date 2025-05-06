@@ -1,5 +1,5 @@
 import axios from 'axios'
-const backendUrl=import.meta.env.VITE_APP_NODE_API
+const backendUrl = import.meta.env.VITE_APP_NODE_API
 
 const BASE_URL = `${backendUrl}/api/employee`
 
@@ -8,7 +8,7 @@ const BASE_URL = `${backendUrl}/api/employee`
  * @param {Object} payload - The project data
  * @param {string} payload.employeeName - The name of the project
  * @param {string} payload.employeeEmail - The name of the project
- * 
+ *
  * @returns {Promise} - Axios response promise
  */
 const createEmployee = async (payload) => {
@@ -17,11 +17,9 @@ const createEmployee = async (payload) => {
     return response.data // Return the data from the response
   } catch (error) {
     console.error('Error creating employee:', error.response?.data || error.message)
-    throw error;
+    throw error
   }
 }
-
-
 
 /**
  * Edit a new employee
@@ -36,10 +34,9 @@ const editEmployee = async (payload) => {
     return response.data // Return the data from the response
   } catch (error) {
     console.error('Error updating employee:', error.response?.data || error.message)
-    throw error;
+    throw error
   }
 }
-
 
 /**
  * delete employee
@@ -51,7 +48,7 @@ const deleteEmployee = async (payload) => {
     const response = await axios.post(`${BASE_URL}/deleteEmployee`, payload)
   } catch (error) {
     console.error('Error deleting employee:', error.response?.data || error.message)
-    throw error;
+    throw error
   }
 }
 
@@ -78,4 +75,24 @@ const getAllEmployees = async (query) => {
   }
 }
 
-export { createEmployee, getAllEmployees,editEmployee,deleteEmployee }
+/**
+ * Get timesheet record
+ * @param {Object} params - Query parameters
+ * @param {number} params.employee_id - The ID of the employee
+ * @param {string} params.start_date - The start date (YYYY-MM-DD)
+ * @param {string} params.end_date - The end date (YYYY-MM-DD)
+ * @returns {Promise} - Axios response promise
+ */
+const getEmployeesWithNoEntry = async (params) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/getEmployeesWithNoEntry`, {
+      params, // Axios automatically appends query parameters
+    })
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error getting month total hours:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+export { createEmployee, getAllEmployees, editEmployee, deleteEmployee, getEmployeesWithNoEntry }
