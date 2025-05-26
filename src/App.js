@@ -2,6 +2,8 @@ import React, { Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { CSpinner } from '@coreui/react'
+import { useSelector } from 'react-redux'
+
 import './scss/style.scss'
 import logo from './assets/images/logo.svg'
 
@@ -12,6 +14,7 @@ import './scss/examples.scss'
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 // Pages
+const Landing = React.lazy(() => import('./views/pages/landing/Landing'))
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
@@ -25,73 +28,54 @@ const DetaildReports = React.lazy(() => import('./views/pages/detailed_reports/D
 const WeeklyReports = React.lazy(() => import('./views/pages/weekly_reports/WeeklyReports'))
 
 const App = () => {
+  // Replace this with your actual auth logic
+
+  const isLoggedIn = useSelector((state) => state.auth.token)
+
   return (
     <BrowserRouter>
       <Suspense
         fallback={
-    <div className="pt-3 text-center loader" style={{ marginTop: '40vh' }}>
-      <img style={{ height: 70 }} src={logo} />
-    </div>
+          <div className="pt-3 text-center loader" style={{ marginTop: '40vh' }}>
+            <img style={{ height: 70 }} src={logo} />
+          </div>
         }
       >
         <Routes>
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} />
           <Route
-            path="*"
-            name="Home"
+            path="/"
             element={
-              <DefaultLayout>
-                <Timesheet />
-              </DefaultLayout>
+              isLoggedIn ? (
+                <DefaultLayout>
+                  <Timesheet />
+                </DefaultLayout>
+              ) : (
+                <Landing />
+              )
             }
           />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/404" element={<Page404 />} />
+          <Route path="/500" element={<Page500 />} />
           <Route
-            exact
             path="/timesheet"
-            name="Timesheet"
             element={
               <DefaultLayout>
                 <Timesheet />
               </DefaultLayout>
             }
           />
-          {/* <Route
-            exact
-            path="/reports"
-            name="Reports"
-            element={
-              <DefaultLayout>
-                <Reports />
-              </DefaultLayout>
-            }
-          />
           <Route
-            exactS
-            path="/detailed"
-            name="Reports"
-            element={
-              <DefaultLayout>
-                <DetaildReports />
-              </DefaultLayout>
-            }
-          /> */}
-          <Route
-            exactS
             path="/reports"
-            name="Reports"
             element={
               <DefaultLayout>
                 <WeeklyReports />
               </DefaultLayout>
             }
           />
-           <Route
-            exactS
+          <Route
             path="/monthreports"
-            name="Month Reports"
             element={
               <DefaultLayout>
                 <DetaildReports />
@@ -99,9 +83,7 @@ const App = () => {
             }
           />
           <Route
-            exact
             path="/projects"
-            name="Projects"
             element={
               <DefaultLayout>
                 <Projects />
@@ -109,9 +91,7 @@ const App = () => {
             }
           />
           <Route
-            exact
             path="/teams"
-            name="Teams"
             element={
               <DefaultLayout>
                 <Employee />
@@ -119,21 +99,28 @@ const App = () => {
             }
           />
           <Route
-            exact
             path="/clients"
-            name="Clients"
             element={
               <DefaultLayout>
                 <Clients />
               </DefaultLayout>
             }
           />
-           <Route
-            exact
+          <Route
             path="/yeet"
-            name="yeet"
             element={
-              <iframe style={{width:"100%", height:"100vh"}} src="https://linktoahmad.github.io/"></iframe>
+              <iframe
+                style={{ width: '100%', height: '100vh' }}
+                src="https://linktoahmad.github.io/"
+              ></iframe>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <DefaultLayout>
+                <Timesheet />
+              </DefaultLayout>
             }
           />
         </Routes>

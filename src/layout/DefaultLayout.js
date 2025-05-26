@@ -10,7 +10,7 @@ const DefaultLayout = ({ children }) => {
   useEffect(() => {
     // write an api to vlidate token _ if validated then route to page
     if (!token) {
-      navigate('/login') // Redirect to login if not authenticated
+      navigate('/') // Redirect to login if not authenticated
     }
   }, [token, navigate])
 
