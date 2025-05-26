@@ -6,6 +6,11 @@ import bg from '../../../assets/images/bg.jpg'
 import timesheet from '../../../assets/images/timesheet.png'
 import report from '../../../assets/images/report.png'
 import projects from '../../../assets/images/projects.png'
+import cal1 from '../../../assets/images/cal1.png'
+import cal2 from '../../../assets/images/cal2.png'
+import mob1 from '../../../assets/images/mob1-portrait.png'
+import mob2 from '../../../assets/images/mob2-portrait.png'
+import mob3 from '../../../assets/images/mob3-portrait.png'
 
 const Landing = () => {
   const [heroStep, setHeroStep] = useState(0)
@@ -40,6 +45,42 @@ const Landing = () => {
       alt: 'Projects Screenshot',
       desc: 'Manage projects, assign clients, and organize your team. Add, edit, or delete with just a few clicks.',
       label: 'Projects & Team',
+    },
+  ]
+
+  const calendarScreens = [
+    {
+      img: cal1,
+      alt: 'Calendar Screenshot 1',
+      desc: 'Flexible calendar view for tracking and planning work schedules.',
+      label: 'Calendar View',
+    },
+    {
+      img: cal2,
+      alt: 'Calendar Screenshot 2',
+      desc: 'Highly customizable for advanced reporting and management.',
+      label: 'Date Range Selector',
+    },
+  ]
+
+  const mobileScreens = [
+    {
+      img: mob1,
+      alt: 'Mobile Dashboard',
+      desc: 'Pixel-perfect dashboard for quick access to your time and projects on the go.',
+      label: 'Mobile Dashboard',
+    },
+    {
+      img: mob2,
+      alt: 'Mobile Timesheet',
+      desc: 'Easily log and edit work hours from your phone with a touch-friendly interface.',
+      label: 'Mobile Timesheet',
+    },
+    {
+      img: mob3,
+      alt: 'Mobile Reports',
+      desc: 'View reports and analytics in a clean, responsive layout optimized for mobile.',
+      label: 'Mobile Reports',
     },
   ]
 
@@ -253,6 +294,106 @@ const Landing = () => {
                   Enjoy a clean, intuitive dashboard that makes workforce management simple for
                   everyone.
                 </p>
+              </div>
+            </CCol>
+          </CRow>
+        </CContainer>
+      </section>
+
+      <section
+        id="calendar"
+        className="bg-white border-top"
+        style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
+      >
+        <CContainer>
+          <CRow className="align-items-center">
+            <CCol md={6} className="mb-4 mb-md-0">
+              <h3 className="fw-bold mb-3">Powerful Calendar & Date Range Selector</h3>
+              <p className="text-muted mb-4">
+                UClock features a highly customizable calendar and date range selector, making it
+                easy to view, filter, and manage your team's schedules and reports. Effortlessly
+                select any date range, visualize work allocations, and plan ahead with intuitive
+                controls.
+              </p>
+              <ul className="text-muted">
+                <li>Flexible calendar view for daily, weekly, or monthly planning</li>
+                <li>Advanced date range selection for custom reporting</li>
+                <li>Seamless integration with timesheets and projects</li>
+                <li>Perfect for teams with dynamic schedules</li>
+              </ul>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-center">
+                <div style={{ width: '100%', maxWidth: 820 }}>
+                  <CCarousel style={{}}>
+                    {calendarScreens.map((screen, idx) => (
+                      <CCarouselItem key={idx} style={{}}>
+                        <div className="">
+                          <img
+                            src={screen.img}
+                            alt={screen.alt}
+                            style={{
+                              width: '100%',
+                            }}
+                          />
+                          <div className="text-center mt-3 text-muted small">
+                            <strong>{screen.label}:</strong> {screen.desc}
+                          </div>
+                        </div>
+                      </CCarouselItem>
+                    ))}
+                  </CCarousel>
+                </div>
+              </div>
+            </CCol>
+          </CRow>
+        </CContainer>
+      </section>
+
+      <section
+        id="mobile"
+        className="bg-white border-top"
+        style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
+      >
+        <CContainer>
+          <CRow className="align-items-center flex-column-reverse flex-md-row">
+            <CCol md={6} className="mt-4 mt-md-0">
+              <h3 className="fw-bold mb-3">Super Responsive Mobile PWA</h3>
+              <p className="text-muted mb-4">
+                UClock is built as a Progressive Web App (PWA) for a seamless mobile experience.
+                Enjoy a pixel-perfect, touch-optimized interface that adapts beautifully to any
+                device. Track time, manage projects, and view reports—anytime, anywhere.
+              </p>
+              <ul className="text-muted">
+                <li>Fully responsive and mobile-first design</li>
+                <li>Installable PWA for offline access</li>
+                <li>Fast, intuitive, and touch-friendly UI</li>
+                <li>Consistent experience across all devices</li>
+              </ul>
+            </CCol>
+            <CCol md={6} className="d-flex justify-content-center">
+              <div style={{ width: '100%', maxWidth: 320 }}>
+                <CCarousel interval={1000}>
+                  {mobileScreens.map((screen, idx) => (
+                    <CCarouselItem key={idx}>
+                      <div className="d-flex flex-column align-items-center">
+                        <img
+                          src={screen.img}
+                          alt={screen.alt}
+                          className="img-fluid"
+                          style={{
+                            width: '100%',
+                            maxWidth: 560,
+                            display: 'block',
+                          }}
+                        />
+                        <div className="text-center mt-3 text-muted small">
+                          <strong>{screen.label}:</strong> {screen.desc}
+                        </div>
+                      </div>
+                    </CCarouselItem>
+                  ))}
+                </CCarousel>
               </div>
             </CCol>
           </CRow>
