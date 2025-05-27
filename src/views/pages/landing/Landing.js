@@ -114,9 +114,9 @@ const Landing = () => {
           <a href="#demo" className="text-dark text-decoration-none fw-semibold">
             Demo
           </a>
-          {/* <a href="#contact" className="text-dark text-decoration-none fw-semibold">
+          <a href="/contact" className="text-dark text-decoration-none fw-semibold">
             Contact
-          </a> */}
+          </a>
         </nav>
       </header>
 
@@ -509,8 +509,8 @@ const Landing = () => {
           <a href="#demo" className="text-dark text-decoration-none fw-semibold">
             Demo
           </a>
-          {/* <span className="d-none d-md-inline">|</span>
-          <a href="#contact" className="text-dark text-decoration-none fw-semibold">Contact</a> */}
+          <span className="d-none d-md-inline">|</span>
+          <a href="/contact" className="text-dark text-decoration-none fw-semibold">Contact</a>
         </div>
         <div>&copy; {new Date().getFullYear()} UClock. All rights reserved.</div>
       </footer>
