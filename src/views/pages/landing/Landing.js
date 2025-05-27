@@ -1,5 +1,5 @@
 import { CContainer, CRow, CCol, CButton, CCarousel, CCarouselItem } from '@coreui/react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import logo from '../../../assets/images/logo.svg'
 import bg from '../../../assets/images/bg.jpg'
@@ -11,6 +11,10 @@ import cal2 from '../../../assets/images/cal2.png'
 import mob1 from '../../../assets/images/mob1-portrait.png'
 import mob2 from '../../../assets/images/mob2-portrait.png'
 import mob3 from '../../../assets/images/mob3-portrait.png'
+import brand1 from '../../../assets/images/brand1.png'
+import brand2 from '../../../assets/images/brand2.jpg'
+import brand3 from '../../../assets/images/brand3.png'
+import brand4 from '../../../assets/images/brand4.png'
 
 const Landing = () => {
   const [heroStep, setHeroStep] = useState(0)
@@ -213,6 +217,29 @@ const Landing = () => {
           Login
         </CButton>
       </div>
+      {/* Brands Strip */}
+      <section id="partners" className="py-5 bg-white">
+        <div className='text-center text-muted py-3'>Trusted by leading brands</div>
+        <div
+          className="d-flex flex-column flex-md-row justify-content-center align-items-center w-100 py-3"
+          style={{
+            gap: 100,
+          }}
+        >
+          <a href="https://kyniska.eu/" target="_blank" rel="noopener noreferrer">
+            <img src={brand1} alt="Brand 1" className="brand-logo" />
+          </a>
+          <a href="https://matisforce.eu/" target="_blank" rel="noopener noreferrer">
+            <img src={brand2} alt="Brand 2" className="brand-logo" />
+          </a>
+          <a href="https://mpconstrucao.pt/" target="_blank" rel="noopener noreferrer">
+            <img src={brand3} alt="Brand 3" className="brand-logo" />
+          </a>
+          <a href="https://megatempo.pt/" target="_blank" rel="noopener noreferrer">
+            <img src={brand4} alt="Brand 4" className="brand-logo" />
+          </a>
+        </div>
+      </section>
 
       {/* About Product Section */}
       <section id="about" className="py-5 bg-white">
