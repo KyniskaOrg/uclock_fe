@@ -26,6 +26,7 @@ const Timesheet = React.lazy(() => import('./views/pages/timesheets/Timesheets')
 const Reports = React.lazy(() => import('./views/pages/reports/reports'))
 const DetaildReports = React.lazy(() => import('./views/pages/detailed_reports/DetailedReports'))
 const WeeklyReports = React.lazy(() => import('./views/pages/weekly_reports/WeeklyReports'))
+const Contact = React.lazy(() => import('./views/pages/contact/Contact'))
 
 const App = () => {
   // Replace this with your actual auth logic
@@ -58,6 +59,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
+          <Route path="/contact" element={<Contact />} />
           <Route
             path="/timesheet"
             element={
