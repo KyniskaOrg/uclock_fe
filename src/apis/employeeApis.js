@@ -41,6 +41,22 @@ const editEmployee = async (payload) => {
 /**
  * delete employee
  * @param {string} payload.employee_id - The name of the project
+ * @param {string} payload.position - The name of the project
+ * @returns {Promise} - Axios response promise
+ */
+const setEmployeePosition = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/setEmployeePosition`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error updating employee:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+/**
+ * delete employee
+ * @param {string} payload.employee_id - The name of the project
  * @returns {Promise} - Axios response promise
  */
 const deleteEmployee = async (payload) => {
@@ -95,4 +111,11 @@ const getEmployeesWithNoEntry = async (params) => {
   }
 }
 
-export { createEmployee, getAllEmployees, editEmployee, deleteEmployee, getEmployeesWithNoEntry }
+export {
+  createEmployee,
+  getAllEmployees,
+  editEmployee,
+  deleteEmployee,
+  getEmployeesWithNoEntry,
+  setEmployeePosition,
+}
