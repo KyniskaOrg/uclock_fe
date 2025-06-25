@@ -18,6 +18,7 @@ import {
   getAllEmployees,
   editEmployee,
   deleteEmployee,
+  setEmployeePosition
 } from '../../../apis/employeeApis'
 import { useToast } from '../../../components/toaster'
 import CIcon from '@coreui/icons-react'
@@ -248,6 +249,21 @@ const Employee = () => {
     }
   }
 
+  const setSupervisor = async (row) => {
+    try {
+      await setEmployeePosition({
+        employee_id: row.employee_id,
+        position: row.position === 'supervisor' ? '' : 'supervisor',
+      })
+      showToast('Selected employees set as supervisor', { color: 'success' })
+      // setShowDeleteModal(false)
+
+      fetchEmployees()
+    } catch (error) {
+      showToast('Error setting supervisor', { color: 'danger' })
+    }
+  }
+
   const structuredData = {
     columns: {
       col1: {
@@ -296,6 +312,20 @@ const Employee = () => {
         allowsorting: false,
       },
       col5: {
+        name: 'Supervisor', // Column name
+        sortBy: 'position', // Default sort by client name
+        allowsorting: true, // Sorting allowed
+        width: '15px',
+        customComponent: (row) => (
+          <CFormCheck
+            id={`select-${row.employee_id}`}
+            style={{ cursor: 'pointer' }}
+            checked={row.position === 'supervisor'}
+            onChange={() => setSupervisor(row)}
+          />
+        ),
+      },
+      col6: {
         name: 'Action', // Column name
         sortBy: '', // Default sort by client name
         width: '15px',
@@ -326,6 +356,7 @@ const Employee = () => {
           name: element.name, // Corresponds to col1
           employee_id: element.employee_id, // Corresponds to col2
           email: element.email, // Corresponds to col3
+          position: element.position, // Corresponds to col4
         })
       })
       setTotalCount(response.totalEmployees)
