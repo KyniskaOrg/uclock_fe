@@ -129,7 +129,13 @@ const WeeklyReports = () => {
     try {
       isLoading(true)
       const startDate = new Date(dateRange.startDate).toISOString().split('T')[0]
-      const endDate = new Date(dateRange.endDate).toISOString().split('T')[0]
+     const b = new Date(dateRange.endDate)
+      const endDate =
+        b.getFullYear() +
+        '-' +
+        String(b.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(b.getDate()).padStart(2, '0')
 
       let data = await downloadTimesheetCsv({
         employee_id: employees.length ? mapIdsToArray(employees) : null,
