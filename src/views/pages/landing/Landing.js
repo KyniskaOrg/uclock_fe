@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react'
 import logo from '../../../assets/images/logo.svg'
 import bg from '../../../assets/images/bg.jpg'
 import timesheet from '../../../assets/images/timesheet.png'
+import geo from '../../../assets/images/geo.png'
 import report from '../../../assets/images/report.png'
 import projects from '../../../assets/images/projects.png'
 import cal1 from '../../../assets/images/cal1.png'
 import cal2 from '../../../assets/images/cal2.png'
 import mob1 from '../../../assets/images/mob1-portrait.png'
 import mob2 from '../../../assets/images/mob2-portrait.png'
+import geo1 from "../../../assets/images/gros-portrait1.png"
+import geo2 from "../../../assets/images/gros-portrait2.png"
 import mob3 from '../../../assets/images/mob3-portrait.png'
 import brand1 from '../../../assets/images/brand1.png'
 import brand2 from '../../../assets/images/brand2.jpg'
@@ -32,6 +35,13 @@ const Landing = () => {
   }, [])
 
   const demoScreens = [
+
+     {
+      img: geo,
+      alt: 'Timesheet Screenshot',
+      desc: 'powerful geo-location-based attendance tracking, ensuring your team checks in from the right place at the right time.',
+      label: 'Geo-location',
+    },
     {
       img: timesheet,
       alt: 'Timesheet Screenshot',
@@ -64,6 +74,21 @@ const Landing = () => {
       alt: 'Calendar Screenshot 2',
       desc: 'Highly customizable for advanced reporting and management.',
       label: 'Date Range Selector',
+    },
+  ]
+
+   const geoLocation = [
+    {
+      img: geo1,
+      alt: 'geo Screenshot 1',
+      desc: 'clock-in and clock-out for mobile teams',
+      label: 'GPS-enabled ',
+    },
+    {
+      img: geo2,
+      alt: 'geo Screenshot 2',
+      desc: 'Geo-fencing to ensure check-ins only occur within allowed zones',
+      label: 'Geo-fencing',
     },
   ]
 
@@ -219,7 +244,7 @@ const Landing = () => {
       </div>
       {/* Brands Strip */}
       <section id="partners" className="py-5 bg-white">
-        <div className='text-center text-muted py-3'>Trusted by leading brands</div>
+        <div className="text-center text-muted py-3">Trusted by leading brands</div>
         <div
           className="d-flex flex-column flex-md-row justify-content-center align-items-center w-100 py-3"
           style={{
@@ -378,6 +403,57 @@ const Landing = () => {
       </section>
 
       <section
+        id="calendar"
+        className="bg-white border-top"
+        style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
+      >
+        <CContainer>
+          <CRow className="align-items-center">
+            <CCol md={6} className="mb-4 mb-md-0">
+              <h3 className="fw-bold mb-3">Smart Geo-Location Attendance Tracking</h3>
+              <p className="text-muted mb-4">
+                UClock offers powerful geo-location-based attendance tracking, ensuring your team
+                checks in from the right place at the right time. Monitor on-site presence, prevent
+                time fraud, and get accurate attendance logs – all powered by real-time location
+                data.
+              </p>
+              <ul className="text-muted">
+                <li>GPS-enabled clock-in and clock-out for mobile teams</li>
+                <li>Real-time location verification for accurate records</li>
+                <li>Geo-fencing to ensure check-ins only occur within allowed zones</li>
+                <li>Ideal for field staff, remote workers, and distributed teams</li>
+              </ul>
+            </CCol>
+               <CCol md={6} className="d-flex justify-content-center">
+              <div style={{ width: '100%', maxWidth: 320 }}>
+                <CCarousel interval={1000}>
+                  {geoLocation.map((screen, idx) => (
+                    <CCarouselItem key={idx}>
+                      <div className="d-flex flex-column align-items-center">
+                        <img
+                          src={screen.img}
+                          alt={screen.alt}
+                          className="img-fluid"
+                          style={{
+                            width: '100%',
+                            maxWidth: 560,
+                            display: 'block',
+                          }}
+                        />
+                        <div className="text-center mt-3 text-muted small">
+                          <strong>{screen.label}:</strong> {screen.desc}
+                        </div>
+                      </div>
+                    </CCarouselItem>
+                  ))}
+                </CCarousel>
+              </div>
+            </CCol>
+          </CRow>
+        </CContainer>
+      </section>
+
+      <section
         id="mobile"
         className="bg-white border-top"
         style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
@@ -510,7 +586,9 @@ const Landing = () => {
             Demo
           </a>
           <span className="d-none d-md-inline">|</span>
-          <a href="/contact" className="text-dark text-decoration-none fw-semibold">Contact</a>
+          <a href="/contact" className="text-dark text-decoration-none fw-semibold">
+            Contact
+          </a>
         </div>
         <div>&copy; {new Date().getFullYear()} UClock. All rights reserved.</div>
       </footer>
