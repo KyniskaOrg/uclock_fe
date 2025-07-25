@@ -1,5 +1,5 @@
 import axios from 'axios'
-const backendUrl=import.meta.env.VITE_APP_NODE_API
+const backendUrl = import.meta.env.VITE_APP_NODE_API
 
 const BASE_URL = `${backendUrl}/api/project`
 
@@ -43,4 +43,24 @@ const getAllProjects = async (query) => {
   }
 }
 
-export { createProject, getAllProjects }
+const deleteProject = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/deleteProject`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error deleting project:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+const editProject = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/editProject`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error editing project:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+export { createProject, getAllProjects, deleteProject, editProject }
