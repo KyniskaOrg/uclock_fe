@@ -1,7 +1,7 @@
-import axios from 'axios';
-const backendUrl=import.meta.env.VITE_APP_NODE_API
+import axios from 'axios'
+const backendUrl = import.meta.env.VITE_APP_NODE_API
 
-const BASE_URL = `${backendUrl}/api/client`;
+const BASE_URL = `${backendUrl}/api/client`
 
 /**
  * Create a new client
@@ -11,14 +11,13 @@ const BASE_URL = `${backendUrl}/api/client`;
  */
 const createClient = async (payload) => {
   try {
-    const response = await axios.post(`${BASE_URL}/createClient`, payload);
-    return response.data; // Return the data from the response
+    const response = await axios.post(`${BASE_URL}/createClient`, payload)
+    return response.data // Return the data from the response
   } catch (error) {
-    console.error('Error creating client:', error.response?.data || error.message);
+    console.error('Error creating client:', error.response?.data || error.message)
     throw error
   }
-};
-
+}
 
 /**
  * Fetch all projects with pagination, sorting, and filtering
@@ -33,14 +32,44 @@ const getAllClients = async (query) => {
   try {
     const response = await axios.get(`${BASE_URL}/getAllClients`, {
       params: {
-       ...query
+        ...query,
       },
-    });
-    return response.data; // Return the data from the response
+    })
+    return response.data // Return the data from the response
   } catch (error) {
-    console.error('Error fetching clients:', error.response?.data || error.message);
+    console.error('Error fetching clients:', error.response?.data || error.message)
     throw error
   }
-};
+}
 
-export {createClient,getAllClients}
+const deleteClient = async (payload) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/deleteClient`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error deleting client:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+const editClient = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/updateClient`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error editing client:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+const deleteClients = async (payload) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/deleteClient`, payload)
+    return response.data // Return the data from the response
+  } catch (error) {
+    console.error('Error deleting clients:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+export { createClient, getAllClients, deleteClients, editClient }

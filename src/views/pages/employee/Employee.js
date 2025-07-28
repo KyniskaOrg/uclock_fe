@@ -18,32 +18,13 @@ import {
   getAllEmployees,
   editEmployee,
   deleteEmployee,
-  setEmployeePosition
+  setEmployeePosition,
 } from '../../../apis/employeeApis'
 import { useToast } from '../../../components/toaster'
 import CIcon from '@coreui/icons-react'
-import { cilTrash } from '@coreui/icons'
-
-const EditebleCell = ({ value, key, onEnter }) => {
-  const [cellVal, setCellVal] = useState(value)
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault() // Prevents form submission behavior
-      onEnter(cellVal) // Call the provided function with the value
-    }
-  }
-
-  return (
-    <CFormInput
-      className="form-control-table"
-      key={key}
-      value={cellVal}
-      onChange={(e) => setCellVal(e.target.value)}
-      onKeyDown={handleKeyDown} // Detect Enter key
-    ></CFormInput>
-  )
-}
+import { cilTrash, cilPen } from '@coreui/icons'
+import EditebleCell from '../../../components/EditableField'
+import DeleteModal from '../../../components/DeleteModal'
 
 const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   const { showToast } = useToast()
@@ -111,47 +92,86 @@ const NewEmployeeModal = ({ visible, setVisible, fetchEmployees }) => {
   )
 }
 
-const DeleteEmployeeModal = ({ visible, setVisible, data, triggerDelete }) => {
-  const { name, employee_id, employee_ids } = data
+const EditEmployeeModal = ({ visible, setVisible, employeeData, fetchEmployees }) => {
+  const { showToast } = useToast()
+  const [name, setName] = useState(employeeData?.name || '')
+  const [email, setEmail] = useState(employeeData?.email || '')
+  const [phone, setPhone] = useState(employeeData?.phone || '')
+  const [isSupervisor, setIsSupervisor] = useState(employeeData?.position === 'supervisor')
+
+  useEffect(() => {
+    setName(employeeData?.name || '')
+    setEmail(employeeData?.email || '')
+    setPhone(employeeData?.phone || '')
+    setIsSupervisor(employeeData?.position === 'supervisor')
+  }, [employeeData, visible])
+
+  const handleEditEmployee = async (event) => {
+    event.preventDefault()
+    try {
+      await editEmployee({
+        employee_id: employeeData.employee_id,
+        name,
+        email,
+        phone,
+        position: isSupervisor ? 'supervisor' : '',
+      })
+      showToast('Employee updated successfully', { color: 'success' })
+      setVisible(false)
+      fetchEmployees()
+    } catch (error) {
+      showToast('Failed to update employee', { color: 'danger' })
+    }
+  }
 
   return (
     <CModal alignment="center" scrollable visible={visible} onClose={() => setVisible(false)}>
-      <CForm
-        onSubmit={(e) => {
-          e.preventDefault()
-          triggerDelete(employee_ids || employee_id)
-        }}
-      >
+      <CForm onSubmit={handleEditEmployee}>
         <CModalHeader>
-          <CModalTitle>Delete Employee</CModalTitle>
+          <CModalTitle>Edit Employee</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          {employee_ids ? (
-            <>
-              Are you sure you want to delete the selected employees?
-              <br />
-              <div style={{ fontWeight: 'bold' }}>IDs: {employee_ids.join(', ')}</div>
-              <br />
-              If you delete, it will also delete all time entries with these.
-            </>
-          ) : (
-            <>
-              Are you sure you want to delete this employee?
-              <br />
-              <div style={{ fontWeight: 'bold' }}>
-                Name: {name} id: {employee_id}
-              </div>
-              <br />
-              If you delete, it will also delete all time entries with this.
-            </>
-          )}
+          <CRow>
+            <CCol>
+              <CFormInput
+                id="employeeName"
+                placeholder="Employee Name"
+                minLength={3}
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mb-2"
+              />
+              <CFormInput
+                id="employeeEmail"
+                placeholder="Employee Email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mb-2"
+              />
+              <CFormInput
+                id="employeePhone"
+                placeholder="Employee Phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="mb-2"
+              />
+              <CFormCheck
+                label="Supervisor"
+                checked={isSupervisor}
+                onChange={(e) => setIsSupervisor(e.target.checked)}
+              />
+            </CCol>
+          </CRow>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>
             Close
           </CButton>
-          <CButton color="danger" type="submit">
-            Delete
+          <CButton color="primary" type="submit">
+            Save Changes
           </CButton>
         </CModalFooter>
       </CForm>
@@ -164,6 +184,10 @@ const Employee = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false) // For modal visibility
   const [selectedEmployee, setSelectedEmployee] = useState({}) // For modal visibility
   const [selectedEmployees, setSelectedEmployees] = useState([]) // For selected employee objects
+  const [editVisible, setEditVisible] = useState(false) // For edit modal visibility
+  const [employeeData, setEmployeeData] = useState({}) // For storing employee data to be edited
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedEditEmployee, setSelectedEditEmployee] = useState({})
 
   const [data, setData] = useState([]) // Storing the structured data for columns
   const [loading, setLoading] = useState(false) // To track if data is being fetched
@@ -264,6 +288,11 @@ const Employee = () => {
     }
   }
 
+  const openEditModal = (row) => {
+    setSelectedEditEmployee(row)
+    setShowEditModal(true)
+  }
+
   const structuredData = {
     columns: {
       col1: {
@@ -312,6 +341,17 @@ const Employee = () => {
         allowsorting: false,
       },
       col5: {
+        name: 'Employee Phone', // Column name
+        sortBy: 'phone', // Default sort by name
+        allowsorting: false, // Sorting allowed
+        // customComponent: (row) => (
+        //   <EditebleCell
+        //     value={row.phone}
+        //     onEnter={(val) => editEmployeeName({ value: val, data: row })}
+        //   />
+        // ),
+      },
+      col6: {
         name: 'Supervisor', // Column name
         sortBy: 'position', // Default sort by client name
         allowsorting: true, // Sorting allowed
@@ -325,17 +365,25 @@ const Employee = () => {
           />
         ),
       },
-      col6: {
-        name: 'Action', // Column name
-        sortBy: '', // Default sort by client name
+      col7: {
+        name: 'Action',
+        sortBy: '',
         width: '15px',
         customComponent: (row) => (
-          <CIcon
-            icon={cilTrash}
-            size="s"
-            style={{ opacity: 0.5, cursor: 'pointer', marginLeft: 12 }}
-            onClick={() => openDeleteModal(row)}
-          />
+          <CCol className="d-flex justify-content-end">
+            <CIcon
+              icon={cilPen}
+              size="s"
+              style={{ opacity: 0.5, cursor: 'pointer', margin: 5 }}
+              onClick={() => openEditModal(row)}
+            />
+            <CIcon
+              icon={cilTrash}
+              size="s"
+              style={{ opacity: 0.5, cursor: 'pointer', margin: 5 }}
+              onClick={() => openDeleteModal(row)}
+            />
+          </CCol>
         ),
       },
     },
@@ -356,9 +404,11 @@ const Employee = () => {
           name: element.name, // Corresponds to col1
           employee_id: element.employee_id, // Corresponds to col2
           email: element.email, // Corresponds to col3
+          phone: element.phone, // Corresponds to col3
           position: element.position, // Corresponds to col4
         })
       })
+      console.log(data)
       setTotalCount(response.totalEmployees)
       setData(data)
     } catch (error) {
@@ -384,12 +434,24 @@ const Employee = () => {
             setVisible={setVisible}
             fetchEmployees={fetchEmployees}
           />
-          <DeleteEmployeeModal
+          <EditEmployeeModal
+            visible={showEditModal}
+            setVisible={setShowEditModal}
+            employeeData={selectedEditEmployee}
+            fetchEmployees={fetchEmployees}
+          />
+          <DeleteModal
             visible={showDeleteModal}
             setVisible={setShowDeleteModal}
-            data={selectedEmployee}
+            selected={
+              selectedEmployees.length > 1
+                ? selectedEmployees.map((item) => item.employee_id)
+                : [selectedEmployee.employee_id]
+            }
             showToast={showToast}
             triggerDelete={selectedEmployees.length > 1 ? triggerDeleteSelected : triggerDelete}
+            title={'Delete Employee'}
+            name={selectedEmployee.name || ''}
           />
 
           <CButton color={'primary'} onClick={() => setVisible(true)}>
@@ -431,8 +493,6 @@ const Employee = () => {
                   >
                     <span style={{ marginRight: '10px', fontSize: 'small' }}>{employee.name}</span>
                     <div
-                      color="danger"
-                      size="sm"
                       style={{ cursor: 'pointer' }}
                       onClick={() => removeSelectedEmployee(employee.employee_id)}
                     >
