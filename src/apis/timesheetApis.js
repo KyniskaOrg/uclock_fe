@@ -120,4 +120,15 @@ const downloadTimesheetCsv = async (params) => {
   }
 }
 
-export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv,getAllTimesheetRecords,getMonthTotalHours }
+// updateprojectTimesheet
+const updateprojectTimesheet = async (data) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/updateprojectTimesheet`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating project timesheet:', error.response?.data || error.message)
+    throw error
+  }
+}
+
+export { setTimesheetRecord, getTimesheetRecord, deleteTimesheetRecords, downloadTimesheetCsv,getAllTimesheetRecords,getMonthTotalHours,updateprojectTimesheet }

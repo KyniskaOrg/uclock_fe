@@ -221,7 +221,7 @@ const CustomTable = ({
             <CDropdown>
               <CDropdownToggle color="primary">Page limit</CDropdownToggle>
               <CDropdownMenu>
-                {[10, 20, 35, 50, 100, 200].map((limit) => (
+                {[10, 20, 35, 50, 100, 200, 1000, 1500, 2000].map((limit) => (
                   <CDropdownItem
                     key={limit}
                     onClick={() => handleLimitChange(limit)}

@@ -4,6 +4,7 @@ import {
   getTimesheetRecord,
   setTimesheetRecord,
   deleteTimesheetRecords,
+  updateprojectTimesheet
 } from '../../apis/timesheetApis'
 import {
   CTable,
@@ -22,16 +23,25 @@ import {
   CForm,
 } from '@coreui/react'
 import { v4 } from 'uuid'
-import CIcon from '@coreui/icons-react'
 import { cilX, cilMoon, cilSun } from '@coreui/icons'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import { getAllProjects } from '../../apis/projectApis'
 import { calculateTotaltime, calculateRowTotal } from '../../utils/utils'
 import { CFormInput, CInputGroup, CInputGroupText } from '@coreui/react'
+import { cilPen } from '@coreui/icons'
+import { cilArrowBottom } from '@coreui/icons'
+import CIcon from '@coreui/icons-react'
 
 // goatta change it to the one from employee portal
 
-const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
+const ProjectDropdown = ({
+  value,
+  onChange,
+  rowData,
+  setRowData,
+  rowId,
+  CustomDropdownIndicator,
+}) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [showDropdown, setShowDropdown] = useState(true) // Toggle for showing dropdown
@@ -142,6 +152,8 @@ const ProjectDropdown = ({ value, onChange, rowData, setRowData, rowId }) => {
           additional={{
             page: currentPage,
           }}
+          components={{ DropdownIndicator: CustomDropdownIndicator }}
+          dropdownIndicator={null} // keeps default if you want
         />
       ) : (
         <div
@@ -358,6 +370,22 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
     }
   }
 
+  const updateProjectValue = async (query) => {
+    try {
+      const data = await updateprojectTimesheet({
+        project_id: query.selectedOption.value,
+        timesheet_ids: query.timesheet_ids,
+      })
+    } catch (error) {
+      console.error('Error updating timesheet data:', error)
+    } finally {
+      showToast('Project updated successfully', { color: 'success' })
+      
+      setProject(query.selectedOption)
+      //console.log('Updated project:', query.selectedOption)
+    }
+  }
+
   const setTimesheetData = async (value, day, date, workType) => {
     try {
       const body = {
@@ -393,9 +421,35 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
         start_date: startDate,
       })
     }
-  }, [employeeId, dateRange, project.value])
+  }, [employeeId, dateRange])
 
   const rowTotal = calculateRowTotal(row)
+
+  const hasTimeInput = (row) => {
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+    return days.some((day) => row[day] && row[day].hours_worked && row[day].hours_worked !== '')
+  }
+
+  const updateProject = (selectedOption) => {
+    // Check if project is being changed and there is already time input
+    if (selectedOption.value !== (row.selectedProject && project.value) && hasTimeInput(row)) {
+      console.log('gotcha')
+      // get ids of time inputs
+      const timeInputIds = Object.keys(row).filter(
+        (key) =>
+          key !== 'id' &&
+          key !== 'selectedProject' &&
+          key !== 'selectedProjectName' &&
+          row[key]?.hours_worked,
+      )
+      let ids = timeInputIds.map((id) => row[id].timesheet_id)
+      console.log('prj:', selectedOption.value, 'ids:', ids)
+      updateProjectValue({
+        selectedOption,
+        timesheet_ids: ids,
+      })
+    } else setProject(selectedOption)
+  }
 
   return (
     <CTableRow key={row.id} className="custom-shadow-hover">
@@ -409,13 +463,25 @@ const RowContainer = ({ row, handleDelete, employeeId, dateRange, rowData, setRo
                   label: row.selectedProjectName,
                 }
           }
-          onChange={setProject}
+          onChange={updateProject}
           rowId={row.id}
           rowData={rowData}
           setRowData={setRowData}
+          CustomDropdownIndicator={() => (
+            <>
+              {' '}
+              <span style={{ display: 'flex', alignItems: 'center', paddingRight: 8 }}>
+                {row.selectedProject ? (
+                  <CIcon icon={cilPen} style={{ fontSize: 18, margin: '0 4px' }} />
+                ) : (
+                  <CIcon icon={cilArrowBottom} style={{ fontSize: 18, margin: '0 4px' }} />
+                )}
+              </span>
+            </>
+          )}
         />
       </CTableDataCell>
-      {[ 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ].map(
+      {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(
         (day, index) => {
           const currentDate = new Date(dateRange.startDate)
           currentDate.setDate(new Date(dateRange.startDate).getDate() + index)
