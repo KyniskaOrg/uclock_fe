@@ -95,12 +95,12 @@ const WeeklyReports = () => {
     let rowData = []
     data.forEach((entry) => {
       rowData.push({
-        projectName: entry.Project.name,
-        name: entry.Employee.name,
-        date: entry.date,
-        hours_worked: entry.hours_worked,
-        hours_worked_decimal: timeToDecimal(entry.hours_worked),
-        work_type: entry.work_type,
+          projectName: entry.Project?.name || 'N/A',
+        name: entry.Employee?.name || 'N/A',
+        date: entry.date || 'N/A',
+        hours_worked: entry.hours_worked || 'N/A',
+        hours_worked_decimal: timeToDecimal(entry.hours_worked) || 'N/A',
+        work_type: entry.work_type || 'N/A',
       })
     })
 
